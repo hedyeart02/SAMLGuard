@@ -795,5 +795,3 @@ func TestBrandingConfig_SanitizationAndResolution(t *testing.T) {
 		t.Fatalf("expected custom ConsoleBgLightCSS, got %q", resolved.ConsoleBgLightCSS)
 	}
 }
-
-

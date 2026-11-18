@@ -1,12 +1,13 @@
 # SAMLGuard
 
-**Enterprise Pure-Go SAML 2.0 MFA Proxy Gateway (`v1.1.1`)**
+**Enterprise Pure-Go SAML 2.0 MFA Proxy Gateway (`v1.2.0`)**
 
 SAMLGuard is a standalone, cross-platform SAML 2.0 Identity Provider Proxy (Proxy IdP) written in Go (`CGO_ENABLED=0`). It sits between Service Providers — such as **Schneider Electric EcoStruxure™ IT Advisor** — and upstream Enterprise Identity Providers (Microsoft Entra ID, Okta, Keycloak, ADFS), enforcing Multi-Factor Authentication (TOTP, Email OTP, and/or SMS OTP) and user authorization before issuing a signed SAML 2.0 assertion downstream.
 
 ## Key Capabilities
 
 - **Single Self-Contained Pure-Go Binary** — Embedded HTML templates, static assets, and pure-Go SQLite (`modernc.org/sqlite`); zero external runtime dependencies or CGO required.
+- **Dynamic Host Network Interface & SAML Endpoints** — Standard Go `net` interface discovery with explicit administrator interface and IPv4 selection in Admin Settings. Generates canonical SAML endpoints (`EntityID`, `SSO`, `SLO`, `Gateway ACS`, `Metadata`), persists settings to SQLite (`gateway_settings`), supports on-demand interface rescanning, and validates TLS certificate SANs without silent switching.
 - **Multi-Platform & Multi-Architecture** — Official release builds for **Windows (AMD64)**, **Linux (AMD64)**, and **Linux (ARM64)**.
 - **Native OS Service Integration** — Runs natively under **Windows Service Control Manager (SCM)** on Windows and **`systemd`** on Linux, plus an integrated **Webmin management suite** (`.wbm.gz`).
 - **SAML 2.0 Proxy Federation** — Handles HTTP-Redirect and HTTP-POST bindings, XML signature & schema validation, replay protection, role/group claim mapping, and signed SAML assertions.
@@ -20,9 +21,9 @@ SAMLGuard is a standalone, cross-platform SAML 2.0 Identity Provider Proxy (Prox
 
 | Platform | Architecture | Binary / Package | Service Manager |
 |----------|--------------|------------------|-----------------|
-| Windows | `amd64` (x86_64) | `samlguard.exe` / `samlguard-v1.1.1-windows-amd64.zip` | Windows Service (`SAMLGuard` via SCM) |
-| Linux | `amd64` (x86_64) | `samlguard` / `samlguard-v1.1.1-linux-amd64.tar.gz` | `systemd` (`samlguard.service`) + Webmin |
-| Linux | `arm64` (aarch64) | `samlguard` / `samlguard-v1.1.1-linux-arm64.tar.gz` | `systemd` (`samlguard.service`) + Webmin |
+| Windows | `amd64` (x86_64) | `samlguard.exe` / `samlguard-v1.2.0-windows-amd64.zip` | Windows Service (`SAMLGuard` via SCM) |
+| Linux | `amd64` (x86_64) | `samlguard` / `samlguard-v1.2.0-linux-amd64.tar.gz` | `systemd` (`samlguard.service`) + Webmin |
+| Linux | `arm64` (aarch64) | `samlguard` / `samlguard-v1.2.0-linux-arm64.tar.gz` | `systemd` (`samlguard.service`) + Webmin |
 
 > **Development Note:** On macOS/Linux/Windows workstations, SAMLGuard can also run directly from any terminal via `go run ./cmd/samlguard`.
 

@@ -24,12 +24,21 @@ type AdminSettingsPayload struct {
 	// Downstream SP (Schneider ITA) & Gateway
 	EntityID                 string            `json:"entity_id" form:"entity_id"`
 	ACSURL                   string            `json:"acs_url" form:"acs_url"`
+	GatewayACSURL            string            `json:"gateway_acs_url" form:"gateway_acs_url"`
 	SSOURL                   string            `json:"sso_url" form:"sso_url"`
 	SLOURL                   string            `json:"slo_url" form:"slo_url"`
 	AllowedAudiences         []string          `json:"allowed_audiences" form:"allowed_audiences"`
 	GroupMapping             map[string]string `json:"group_mapping" form:"group_mapping"`
 	CustomerTenants          []CustomerTenant  `json:"customer_tenants,omitempty"`
 	CustomerTenantsSubmitted bool              `json:"-"`
+
+	// Network & Dynamic Host Detection
+	NetworkMode               string `json:"network_mode" form:"network_mode"` // "auto" or "manual"
+	ManualPublicURL           string `json:"manual_public_url" form:"manual_public_url"`
+	PreferredNetworkInterface string `json:"preferred_network_interface" form:"preferred_network_interface"`
+	SelectedNetworkInterface  string `json:"selected_network_interface" form:"selected_network_interface"`
+	SelectedNetworkIP         string `json:"selected_network_ip" form:"selected_network_ip"`
+	PublicPort                int    `json:"public_port" form:"public_port"`
 
 	// MFA & Policies
 	MFAEnabledProviders []string      `json:"mfa_enabled_providers" form:"mfa_enabled_providers"`
@@ -91,11 +100,36 @@ func ApplyAdminSettings(cfg *Config, payload *AdminSettingsPayload) {
 	if v := strings.TrimSpace(payload.ACSURL); v != "" {
 		cfg.SAML.ACSURL = v
 	}
+	if v := strings.TrimSpace(payload.GatewayACSURL); v != "" {
+		cfg.SAML.GatewayACSURL = v
+	}
 	if v := strings.TrimSpace(payload.SSOURL); v != "" {
 		cfg.SAML.SSOURL = v
 	}
 	if v := strings.TrimSpace(payload.SLOURL); v != "" {
 		cfg.SAML.SLOURL = v
+	}
+	if v := strings.TrimSpace(payload.NetworkMode); v != "" {
+		cfg.Server.NetworkMode = v
+	}
+	if v := strings.TrimSpace(payload.ManualPublicURL); v != "" {
+		cfg.Server.PublicURL = v
+	}
+	if v := strings.TrimSpace(payload.PreferredNetworkInterface); v != "" {
+		cfg.Server.PreferredInterface = v
+		if cfg.Server.SelectedInterface == "" {
+			cfg.Server.SelectedInterface = v
+		}
+	}
+	if v := strings.TrimSpace(payload.SelectedNetworkInterface); v != "" {
+		cfg.Server.SelectedInterface = v
+		cfg.Server.PreferredInterface = v
+	}
+	if v := strings.TrimSpace(payload.SelectedNetworkIP); v != "" {
+		cfg.Server.SelectedIP = v
+	}
+	if payload.PublicPort > 0 {
+		cfg.Server.Port = payload.PublicPort
 	}
 	if normIdPs := NormalizeIdPKeys(payload.EnabledIdPs); len(normIdPs) > 0 {
 		cfg.SAML.EnabledIdPs = normIdPs
@@ -663,4 +697,3 @@ func SaveConfig(filePath string, cfg *Config, payload *AdminSettingsPayload) err
 
 	return nil
 }
-

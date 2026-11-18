@@ -3,6 +3,7 @@ package validator
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -143,17 +144,49 @@ func (v *DefaultClockValidator) ValidateClockSkew(ctx *model.AuthenticationConte
 	return nil
 }
 
-// DefaultPolicyValidator enforces SAML 2.0 semantic destination rules
+// DefaultPolicyValidator enforces SAML 2.0 semantic destination rules.
+// Supports both static destinations (backward compatible) and dynamic destination resolvers.
 type DefaultPolicyValidator struct {
-	ExpectedDestination string
+	ExpectedDestination     string
+	DestinationResolverFunc func() string
+	AllowedDestinations     []string
 }
 
 func (v *DefaultPolicyValidator) ValidatePolicy(ctx *model.AuthenticationContext) error {
 	if ctx == nil {
 		return errors.New("authentication context is nil")
 	}
-	if ctx.Destination != "" && v.ExpectedDestination != "" && ctx.Destination != v.ExpectedDestination {
+
+	dest := strings.TrimSpace(ctx.Destination)
+	if dest == "" {
+		return nil
+	}
+
+	// 1. Dynamic resolver check (allows runtime host IP updates without restart)
+	if v.DestinationResolverFunc != nil {
+		if expected := strings.TrimSpace(v.DestinationResolverFunc()); expected != "" {
+			if strings.EqualFold(dest, expected) {
+				return nil
+			}
+		}
+	}
+
+	// 2. Static ExpectedDestination check (backward compatible)
+	if v.ExpectedDestination != "" && strings.EqualFold(dest, strings.TrimSpace(v.ExpectedDestination)) {
+		return nil
+	}
+
+	// 3. Explicit allowed destinations list
+	for _, allowed := range v.AllowedDestinations {
+		if a := strings.TrimSpace(allowed); a != "" && strings.EqualFold(dest, a) {
+			return nil
+		}
+	}
+
+	// If destinations were configured and none matched, reject
+	if v.ExpectedDestination != "" || v.DestinationResolverFunc != nil || len(v.AllowedDestinations) > 0 {
 		return errors.New("destination mismatch: request not intended for this proxy")
 	}
+
 	return nil
 }

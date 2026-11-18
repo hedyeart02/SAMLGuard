@@ -176,4 +176,3 @@ func (s *CorrelationStore) cleanupExpired() {
 		s.mu.Unlock()
 	}
 }
-

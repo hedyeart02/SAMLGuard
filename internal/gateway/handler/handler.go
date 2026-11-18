@@ -24,16 +24,17 @@ import (
 	"github.com/beevik/etree"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	goxmldsig "github.com/russellhaering/goxmldsig"
 	"github.com/hidayat-SE/samlguard/internal/config"
 	fedmodel "github.com/hidayat-SE/samlguard/internal/federation/model"
 	"github.com/hidayat-SE/samlguard/internal/gateway"
 	"github.com/hidayat-SE/samlguard/internal/gateway/pipeline"
 	"github.com/hidayat-SE/samlguard/internal/mfa"
+	"github.com/hidayat-SE/samlguard/internal/network"
 	"github.com/hidayat-SE/samlguard/pkg/metrics"
 	"github.com/hidayat-SE/samlguard/pkg/replay"
 	"github.com/hidayat-SE/samlguard/pkg/response"
 	"github.com/hidayat-SE/samlguard/web"
+	goxmldsig "github.com/russellhaering/goxmldsig"
 	"go.uber.org/zap"
 )
 
@@ -45,6 +46,9 @@ type SAMLHandler struct {
 	idpCertMu            sync.RWMutex
 	idpCertStore         *goxmldsig.MemoryX509CertificateStore
 	cfg                  *config.Config
+	configManager        *config.Manager
+	netManager           *network.Manager
+	publicURLResolver    network.PublicURLResolver
 	templates            *template.Template
 	corporateLoginTmpl   *template.Template
 	logger               *zap.Logger
@@ -165,6 +169,23 @@ func NewSAMLHandler(
 		ephemeralAdminSecret: ephemeralSecret,
 		assertionReplay:      replay.NewMemoryReplayDetector(),
 	}, nil
+}
+
+// SetNetworkManager injects host network management, endpoint resolution and configuration management.
+func (h *SAMLHandler) SetNetworkManager(nm *network.Manager, cm *config.Manager) {
+	h.netManager = nm
+	h.publicURLResolver = nm
+	h.configManager = cm
+}
+
+// SetNetworkComponents is a compatibility helper for injecting network manager and public URL resolver.
+func (h *SAMLHandler) SetNetworkComponents(nm *network.Manager, pr network.PublicURLResolver, cm *config.Manager) {
+	h.netManager = nm
+	h.publicURLResolver = pr
+	if h.publicURLResolver == nil && nm != nil {
+		h.publicURLResolver = nm
+	}
+	h.configManager = cm
 }
 
 // loadIDPCertStoreFromPath loads X.509 certificates from a single PEM file path.
@@ -764,7 +785,7 @@ func (h *SAMLHandler) validateUpstreamSAMLResponseForSession(rawB64, expectedOut
 	if recipient == "" {
 		return nil, errors.New("upstream SAML validation failed: missing or empty SubjectConfirmationData Recipient")
 	}
-	expectedACS := strings.TrimSpace(h.cfg.SAML.ACSURL)
+	expectedACS := strings.TrimSpace(h.getGatewayACSLocation())
 	if expectedACS == "" {
 		if h.cfg.IsProduction() {
 			return nil, errors.New("upstream SAML validation failed: saml.acs_url is mandatory in production mode; /saml/acs fallback is forbidden")
@@ -773,14 +794,16 @@ func (h *SAMLHandler) validateUpstreamSAMLResponseForSession(rawB64, expectedOut
 	}
 	normRecipient := strings.TrimRight(recipient, "/")
 	normExpectedACS := strings.TrimRight(expectedACS, "/")
-	if normRecipient != normExpectedACS {
+	legacyACS := strings.TrimRight(strings.TrimSpace(h.cfg.SAML.ACSURL), "/")
+	if normRecipient != normExpectedACS && (legacyACS == "" || normRecipient != legacyACS) {
 		return nil, fmt.Errorf("upstream SAML validation failed: SubjectConfirmationData Recipient mismatch: expected %s, got %s", expectedACS, recipient)
 	}
 
 	// Destination check (strict match against expected ACS URL)
 	dest := strings.TrimSpace(root.SelectAttrValue("Destination", ""))
 	if dest != "" {
-		if !matchesExpectedDestination(dest, expectedACS, h.cfg != nil && h.cfg.IsProduction()) {
+		if !matchesExpectedDestination(dest, expectedACS, h.cfg != nil && h.cfg.IsProduction()) &&
+			(legacyACS == "" || !matchesExpectedDestination(dest, legacyACS, h.cfg != nil && h.cfg.IsProduction())) {
 			return nil, fmt.Errorf("destination mismatch: %s does not match SAMLGuard ACS", dest)
 		}
 	}
@@ -1790,11 +1813,29 @@ func (h *SAMLHandler) getKeyDescriptorXML() string {
 	return ""
 }
 
-func (h *SAMLHandler) getACSLocation() string {
-	if h.cfg.SAML.ACSURL != "" {
+func (h *SAMLHandler) getGatewayACSLocation() string {
+	if h.publicURLResolver != nil {
+		if u := h.publicURLResolver.GatewayACSURL(); u != "" {
+			return u
+		}
+	}
+	if h.cfg != nil && h.cfg.SAML.GatewayACSURL != "" {
+		return h.cfg.SAML.GatewayACSURL
+	}
+	if h.cfg != nil && h.cfg.SAML.ACSURL != "" {
 		return h.cfg.SAML.ACSURL
 	}
-	return h.cfg.SAML.EntityID + "/saml/acs"
+	return ""
+}
+
+func (h *SAMLHandler) getACSLocation() string {
+	if loc := h.getGatewayACSLocation(); loc != "" {
+		return loc
+	}
+	if h.cfg != nil && h.cfg.SAML.EntityID != "" {
+		return strings.TrimRight(h.cfg.SAML.EntityID, "/") + "/saml/acs"
+	}
+	return "/saml/acs"
 }
 
 // HandleIdPMetadata renders SAML 2.0 Identity Provider metadata strictly for downstream SPs (Schneider Electric IT Advisor).

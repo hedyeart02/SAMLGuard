@@ -29,6 +29,7 @@ import (
 	"github.com/hidayat-SE/samlguard/internal/config"
 	"github.com/hidayat-SE/samlguard/internal/ita"
 	"github.com/hidayat-SE/samlguard/internal/mfa"
+	"github.com/hidayat-SE/samlguard/internal/network"
 	"github.com/hidayat-SE/samlguard/web"
 	"go.uber.org/zap"
 )
@@ -55,35 +56,48 @@ type CertDetails struct {
 
 // AdminSettingsViewModel models the view data passed to admin_settings.html.
 type AdminSettingsViewModel struct {
-	AdminUsername       string
-	Settings            *config.AdminSettingsPayload
-	ActiveIdP           string
-	EnabledIdPs         []string
-	SimulatorEnabled    bool
-	EntraEnabled        bool
-	KeycloakEnabled     bool
-	CustomIdPEnabled    bool
-	IdPProfilesJSON     template.JS
-	TotpEnabled         bool
-	EmailEnabled        bool
-	SMSEnabled          bool
-	SMSProvider         string
-	SMSProfilesJSON     template.JS
-	Port                int
-	AllowedAudiencesStr string
-	CertInfo            CertDetails
-	AuthorizedUsers     []mfa.AuthorizedUser
-	ServerTimeUTC         string
-	ServerTimeLocal       string
-	SuccessMessage        string
-	ErrorMessage          string
-	CSRFToken             string
-	Branding              config.ResolvedBranding
-	BrandingActiveProfile string
-	BrandingProfilesJSON  template.JS
+	AdminUsername                string
+	Settings                     *config.AdminSettingsPayload
+	ActiveIdP                    string
+	EnabledIdPs                  []string
+	SimulatorEnabled             bool
+	EntraEnabled                 bool
+	KeycloakEnabled              bool
+	CustomIdPEnabled             bool
+	IdPProfilesJSON              template.JS
+	TotpEnabled                  bool
+	EmailEnabled                 bool
+	SMSEnabled                   bool
+	SMSProvider                  string
+	SMSProfilesJSON              template.JS
+	Port                         int
+	AllowedAudiencesStr          string
+	CertInfo                     CertDetails
+	AuthorizedUsers              []mfa.AuthorizedUser
+	ServerTimeUTC                string
+	ServerTimeLocal              string
+	SuccessMessage               string
+	ErrorMessage                 string
+	CSRFToken                    string
+	Branding                     config.ResolvedBranding
+	BrandingActiveProfile        string
+	BrandingProfilesJSON         template.JS
 	CustomerTenantsJSON          template.JS
 	ConnectedSPEnvironmentsCount int
 	AutoTLSDomainsStr            string
+	SelectedNetworkInterface     string
+	SelectedNetworkIP            string
+	IsNetworkIPAvailable         bool
+	AvailableInterfaces          []network.InterfaceInfo
+	DetectedHostIP               string
+	PreviousHostIP               string
+	NetworkInterfaceName         string
+	IsNetworkConnected           bool
+	PublicBaseURL                string
+	PublicURLMode                string
+	GatewayACSURL                string
+	DownstreamACSURL             string
+	TLSCertValidForCurrentIP     bool
 }
 
 // --- Session & Security Helpers ---
@@ -235,7 +249,8 @@ func isJSONAdminRequest(c *gin.Context) bool {
 		strings.HasPrefix(path, "/admin/users/") ||
 		strings.HasPrefix(path, "/admin/settings/test-email") ||
 		strings.HasPrefix(path, "/admin/settings/test-sms") ||
-		strings.HasPrefix(path, "/admin/branding/")
+		strings.HasPrefix(path, "/admin/branding/") ||
+		strings.HasPrefix(path, "/admin/network/")
 }
 
 func (h *SAMLHandler) computeAdminCSRFToken(sessionToken string) string {
@@ -1531,55 +1546,95 @@ func (h *SAMLHandler) buildAdminViewModel(adminUsername, successMsg, errorMsg st
 	connectedSPCount := 1 + h.cfg.SAML.EnabledCustomerTenantsCount()
 
 	payload := &config.AdminSettingsPayload{
-		ActiveIdP:             activeIdP,
-		EnabledIdPs:           enabledIdPs,
-		IdPProfiles:           profiles,
-		IdPEntityID:           h.cfg.SAML.IdPEntityID,
-		IdPSSOURL:             h.cfg.SAML.IdPSSOURL,
-		IdPMetadataURL:        h.cfg.SAML.IdPMetadataURL,
-		IdPCertFile:           h.cfg.SAML.IdPCertFile,
-		EntityID:              h.cfg.SAML.EntityID,
-		ACSURL:                h.cfg.SAML.ACSURL,
-		SSOURL:                h.cfg.SAML.SSOURL,
-		SLOURL:                h.cfg.SAML.SLOURL,
-		AllowedAudiences:      h.cfg.SAML.AllowedAudiences,
-		GroupMapping:          h.cfg.SAML.GroupMapping,
-		CustomerTenants:       customerTenants,
-		MFAEnabledProviders:   h.cfg.MFA.ActiveProviders(),
-		MFADefaultProvider:    mfaDefaultProvider,
-		MFAIssuer:             h.cfg.MFA.Issuer,
-		OTPExpiry:             h.cfg.MFA.OTPExpiry,
-		ResendCooldown:        h.cfg.MFA.ResendCooldown,
-		AllowDummyOTP:         h.cfg.MFA.AllowDummyOTP,
-		SMTPHost:              h.cfg.SMTP.Host,
-		SMTPPort:              h.cfg.SMTP.Port,
-		SMTPUsername:          h.cfg.SMTP.Username,
-		SMTPFrom:              h.cfg.SMTP.From,
-		SMTPFromName:          h.cfg.SMTP.FromName,
-		SMTPEncryption:        h.cfg.SMTP.Encryption,
-		SMSProvider:           smsProvider,
-		SMSAPIURL:             h.cfg.SMS.APIURL,
-		SMSAccountID:          h.cfg.SMS.AccountID,
-		SMSSenderID:           h.cfg.SMS.SenderID,
-		SMSHTTPMethod:         h.cfg.SMS.HTTPMethod,
-		SMSMessageTemplate:    h.cfg.SMS.MessageTemplate,
-		SMSProfiles:           smsProfilesView,
-		ITAAPIURL:             h.cfg.ITA.APIURL,
-		ITAAPIUsername:        h.cfg.ITA.APIUsername,
-		ITAEnforceWhitelist:   h.cfg.ITA.EnforceUserWhitelist,
-		ITAManualAllowedUsers: h.cfg.ITA.ManualAllowedUsers,
-		BrandingActiveProfile: brandingActive,
-		BrandingProfiles:      brandingProfiles,
-		TLSEnabled:            h.cfg.TLS.Enabled,
-		AutoTLSEnabled:        h.cfg.TLS.AutoTLS.Enabled,
-		AutoTLSDomains:        h.cfg.TLS.AutoTLS.Domains,
-		AutoTLSEmail:          h.cfg.TLS.AutoTLS.Email,
-		AutoTLSCacheDir:       h.cfg.TLS.AutoTLS.EffectiveCacheDir(),
+		ActiveIdP:                activeIdP,
+		EnabledIdPs:              enabledIdPs,
+		IdPProfiles:              profiles,
+		IdPEntityID:              h.cfg.SAML.IdPEntityID,
+		IdPSSOURL:                h.cfg.SAML.IdPSSOURL,
+		IdPMetadataURL:           h.cfg.SAML.IdPMetadataURL,
+		IdPCertFile:              h.cfg.SAML.IdPCertFile,
+		EntityID:                 h.cfg.SAML.EntityID,
+		ACSURL:                   h.cfg.SAML.ACSURL,
+		SSOURL:                   h.cfg.SAML.SSOURL,
+		SLOURL:                   h.cfg.SAML.SLOURL,
+		AllowedAudiences:         h.cfg.SAML.AllowedAudiences,
+		GroupMapping:             h.cfg.SAML.GroupMapping,
+		CustomerTenants:          customerTenants,
+		MFAEnabledProviders:      h.cfg.MFA.ActiveProviders(),
+		MFADefaultProvider:       mfaDefaultProvider,
+		MFAIssuer:                h.cfg.MFA.Issuer,
+		OTPExpiry:                h.cfg.MFA.OTPExpiry,
+		ResendCooldown:           h.cfg.MFA.ResendCooldown,
+		AllowDummyOTP:            h.cfg.MFA.AllowDummyOTP,
+		SMTPHost:                 h.cfg.SMTP.Host,
+		SMTPPort:                 h.cfg.SMTP.Port,
+		SMTPUsername:             h.cfg.SMTP.Username,
+		SMTPFrom:                 h.cfg.SMTP.From,
+		SMTPFromName:             h.cfg.SMTP.FromName,
+		SMTPEncryption:           h.cfg.SMTP.Encryption,
+		SMSProvider:              smsProvider,
+		SMSAPIURL:                h.cfg.SMS.APIURL,
+		SMSAccountID:             h.cfg.SMS.AccountID,
+		SMSSenderID:              h.cfg.SMS.SenderID,
+		SMSHTTPMethod:            h.cfg.SMS.HTTPMethod,
+		SMSMessageTemplate:       h.cfg.SMS.MessageTemplate,
+		SMSProfiles:              smsProfilesView,
+		ITAAPIURL:                h.cfg.ITA.APIURL,
+		ITAAPIUsername:           h.cfg.ITA.APIUsername,
+		ITAEnforceWhitelist:      h.cfg.ITA.EnforceUserWhitelist,
+		ITAManualAllowedUsers:    h.cfg.ITA.ManualAllowedUsers,
+		BrandingActiveProfile:    brandingActive,
+		BrandingProfiles:         brandingProfiles,
+		TLSEnabled:               h.cfg.TLS.Enabled,
+		AutoTLSEnabled:           h.cfg.TLS.AutoTLS.Enabled,
+		AutoTLSDomains:           h.cfg.TLS.AutoTLS.Domains,
+		AutoTLSEmail:             h.cfg.TLS.AutoTLS.Email,
+		AutoTLSCacheDir:          h.cfg.TLS.AutoTLS.EffectiveCacheDir(),
 		AutoTLSHTTPChallengeAddr: h.cfg.TLS.AutoTLS.EffectiveHTTPChallengeAddr(),
 	}
 
 	now := time.Now()
 	certInfo := parseCertDetails(h.cfg.SAML.CertFile)
+
+	selectedIP := ""
+	selectedIface := ""
+	isIPAvailable := true
+	publicBaseURL := ""
+	publicURLMode := "auto"
+	gatewayACSURL := h.getGatewayACSLocation()
+	downstreamACSURL := h.cfg.SAML.ACSURL
+
+	if h.netManager != nil {
+		selectedIP = h.netManager.SelectedIP()
+		selectedIface = h.netManager.SelectedInterface()
+		isIPAvailable = h.netManager.IsIPAvailable()
+		publicBaseURL = h.netManager.BaseURL()
+		if h.netManager.IsManualOverride() {
+			publicURLMode = "manual"
+		}
+		gatewayACSURL = h.netManager.GatewayACSURL()
+	} else if h.cfg != nil {
+		if h.cfg.Server.SelectedIP != "" {
+			selectedIP = h.cfg.Server.SelectedIP
+		} else if h.cfg.Server.Host != "" {
+			selectedIP = h.cfg.Server.Host
+		}
+		selectedIface = h.cfg.Server.SelectedInterface
+		if h.cfg.Server.PublicURL != "" {
+			publicBaseURL = h.cfg.Server.PublicURL
+			publicURLMode = "manual"
+		} else {
+			publicBaseURL = h.cfg.SAML.EntityID
+		}
+	}
+
+	availableIfaces, _ := network.DiscoverInterfaces(false)
+
+	certPath := h.cfg.TLS.CertFile
+	if certPath == "" {
+		certPath = h.cfg.SAML.CertFile
+	}
+	tlsCertValid := checkTLSCertValidForCurrentIP(certPath, selectedIP)
 
 	var authorizedUsers []mfa.AuthorizedUser
 	if h.mfaService != nil && h.mfaService.Storage() != nil {
@@ -1590,34 +1645,47 @@ func (h *SAMLHandler) buildAdminViewModel(adminUsername, successMsg, errorMsg st
 	}
 
 	return &AdminSettingsViewModel{
-		AdminUsername:       adminUsername,
-		Settings:            payload,
-		ActiveIdP:           activeIdP,
-		EnabledIdPs:         enabledIdPs,
-		SimulatorEnabled:    h.cfg.SAML.IsIdPEnabled("simulator"),
-		EntraEnabled:        h.cfg.SAML.IsIdPEnabled("entra"),
-		KeycloakEnabled:     h.cfg.SAML.IsIdPEnabled("keycloak"),
-		CustomIdPEnabled:    h.cfg.SAML.IsIdPEnabled("custom"),
-		IdPProfilesJSON:     template.JS(profilesJSON),
-		TotpEnabled:         h.cfg.MFA.IsProviderEnabled("totp"),
-		EmailEnabled:        h.cfg.MFA.IsProviderEnabled("email"),
-		SMSEnabled:          h.cfg.MFA.IsProviderEnabled("sms"),
-		SMSProvider:         smsProvider,
-		SMSProfilesJSON:     template.JS(smsProfilesJSON),
-		Port:                h.cfg.Server.Port,
-		AllowedAudiencesStr: strings.Join(h.cfg.SAML.AllowedAudiences, ", "),
-		CertInfo:            certInfo,
-		AuthorizedUsers:     authorizedUsers,
-		ServerTimeUTC:         now.UTC().Format("2006-01-02 15:04:05 UTC"),
-		ServerTimeLocal:       now.Format("2006-01-02 15:04:05 MST"),
-		SuccessMessage:        successMsg,
-		ErrorMessage:          errorMsg,
-		Branding:              resolvedBrand,
-		BrandingActiveProfile: brandingActive,
-		BrandingProfilesJSON:  template.JS(brandingProfilesJSON),
+		AdminUsername:                adminUsername,
+		Settings:                     payload,
+		ActiveIdP:                    activeIdP,
+		EnabledIdPs:                  enabledIdPs,
+		SimulatorEnabled:             h.cfg.SAML.IsIdPEnabled("simulator"),
+		EntraEnabled:                 h.cfg.SAML.IsIdPEnabled("entra"),
+		KeycloakEnabled:              h.cfg.SAML.IsIdPEnabled("keycloak"),
+		CustomIdPEnabled:             h.cfg.SAML.IsIdPEnabled("custom"),
+		IdPProfilesJSON:              template.JS(profilesJSON),
+		TotpEnabled:                  h.cfg.MFA.IsProviderEnabled("totp"),
+		EmailEnabled:                 h.cfg.MFA.IsProviderEnabled("email"),
+		SMSEnabled:                   h.cfg.MFA.IsProviderEnabled("sms"),
+		SMSProvider:                  smsProvider,
+		SMSProfilesJSON:              template.JS(smsProfilesJSON),
+		Port:                         h.cfg.Server.Port,
+		AllowedAudiencesStr:          strings.Join(h.cfg.SAML.AllowedAudiences, ", "),
+		CertInfo:                     certInfo,
+		AuthorizedUsers:              authorizedUsers,
+		ServerTimeUTC:                now.UTC().Format("2006-01-02 15:04:05 UTC"),
+		ServerTimeLocal:              now.Format("2006-01-02 15:04:05 MST"),
+		SuccessMessage:               successMsg,
+		ErrorMessage:                 errorMsg,
+		Branding:                     resolvedBrand,
+		BrandingActiveProfile:        brandingActive,
+		BrandingProfilesJSON:         template.JS(brandingProfilesJSON),
 		CustomerTenantsJSON:          template.JS(customerTenantsJSON),
 		ConnectedSPEnvironmentsCount: connectedSPCount,
 		AutoTLSDomainsStr:            strings.Join(h.cfg.TLS.AutoTLS.Domains, ", "),
+		SelectedNetworkInterface:     selectedIface,
+		SelectedNetworkIP:            selectedIP,
+		IsNetworkIPAvailable:         isIPAvailable,
+		AvailableInterfaces:          availableIfaces,
+		DetectedHostIP:               selectedIP,
+		PreviousHostIP:               "",
+		NetworkInterfaceName:         selectedIface,
+		IsNetworkConnected:           isIPAvailable,
+		PublicBaseURL:                publicBaseURL,
+		PublicURLMode:                publicURLMode,
+		GatewayACSURL:                gatewayACSURL,
+		DownstreamACSURL:             downstreamACSURL,
+		TLSCertValidForCurrentIP:     tlsCertValid,
 	}
 }
 
@@ -1733,4 +1801,282 @@ func parseCertDetails(certPath string) CertDetails {
 	details.SHA256 = strings.Join(hexParts, ":")
 
 	return details
+}
+
+// checkTLSCertValidForCurrentIP verifies whether the configured TLS certificate includes the current host IP or domain in its SANs / CN.
+func checkTLSCertValidForCurrentIP(certPath, hostOrIP string) bool {
+	hostOrIP = strings.TrimSpace(hostOrIP)
+	if certPath == "" || hostOrIP == "" {
+		return false
+	}
+	data, err := os.ReadFile(certPath)
+	if err != nil {
+		return false
+	}
+	block, _ := pem.Decode(data)
+	if block == nil {
+		return false
+	}
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return false
+	}
+	now := time.Now()
+	if now.Before(cert.NotBefore) || now.After(cert.NotAfter) {
+		return false
+	}
+	if targetIP := net.ParseIP(hostOrIP); targetIP != nil {
+		for _, sanIP := range cert.IPAddresses {
+			if sanIP.Equal(targetIP) {
+				return true
+			}
+		}
+	}
+	if strings.EqualFold(cert.Subject.CommonName, hostOrIP) {
+		return true
+	}
+	for _, dns := range cert.DNSNames {
+		if strings.EqualFold(dns, hostOrIP) {
+			return true
+		}
+	}
+	return false
+}
+
+// NetworkConfigurationRequest specifies configuration settings submitted to /admin/network/configuration.
+type NetworkConfigurationRequest struct {
+	InterfaceName      string `json:"interface_name"`
+	IPAddress          string `json:"ip_address"`
+	Mode               string `json:"mode"`
+	ManualPublicURL    string `json:"manual_public_url"`
+	PreferredInterface string `json:"preferred_interface"` // backward compat alias for InterfaceName
+	PublicPort         int    `json:"public_port"`
+	CustomEntityID     string `json:"custom_entity_id"`
+}
+
+// HandleAdminNetworkStatusGet returns the current network state, available interfaces, and runtime endpoints as JSON.
+func (h *SAMLHandler) HandleAdminNetworkStatusGet(c *gin.Context) {
+	includeVirtual := c.Query("include_virtual") == "true"
+	availableIfaces, err := network.DiscoverInterfaces(includeVirtual)
+	if err != nil {
+		h.logger.Warn("failed to discover network interfaces", zap.Error(err))
+	}
+
+	selectedIP := ""
+	selectedIface := ""
+	isIPAvailable := true
+	publicBaseURL := ""
+	publicURLMode := "auto"
+	entityID := ""
+	gatewayACSURL := h.getGatewayACSLocation()
+	ssoURL := ""
+	sloURL := ""
+	metadataURL := ""
+	idpMetadataURL := ""
+	spMetadataURL := ""
+
+	if h.netManager != nil {
+		selectedIP = h.netManager.SelectedIP()
+		selectedIface = h.netManager.SelectedInterface()
+		isIPAvailable = h.netManager.IsIPAvailable()
+		publicBaseURL = h.netManager.BaseURL()
+		if h.netManager.IsManualOverride() {
+			publicURLMode = "manual"
+		}
+		entityID = h.netManager.EntityID()
+		gatewayACSURL = h.netManager.GatewayACSURL()
+		ssoURL = h.netManager.SSOURL()
+		sloURL = h.netManager.SLOURL()
+		metadataURL = h.netManager.MetadataURL()
+		idpMetadataURL = h.netManager.IdPMetadataURL()
+		spMetadataURL = h.netManager.SPMetadataURL()
+	} else if h.cfg != nil {
+		if h.cfg.Server.SelectedIP != "" {
+			selectedIP = h.cfg.Server.SelectedIP
+		} else if h.cfg.Server.Host != "" {
+			selectedIP = h.cfg.Server.Host
+		}
+		selectedIface = h.cfg.Server.SelectedInterface
+		if h.cfg.Server.PublicURL != "" {
+			publicBaseURL = h.cfg.Server.PublicURL
+			publicURLMode = "manual"
+		} else {
+			publicBaseURL = h.cfg.SAML.EntityID
+		}
+		entityID = h.cfg.SAML.EntityID
+		ssoURL = h.cfg.SAML.SSOURL
+		sloURL = h.cfg.SAML.SLOURL
+		metadataURL = publicBaseURL + "/metadata"
+		idpMetadataURL = publicBaseURL + "/saml/metadata/idp"
+		spMetadataURL = publicBaseURL + "/saml/metadata/sp"
+	}
+
+	warningMessage := ""
+	if !isIPAvailable && selectedIP != "" {
+		warningMessage = fmt.Sprintf("Configured network interface/IP (%s) is not detected on the host. Endpoints may be unreachable.", selectedIP)
+	}
+
+	certPath := h.cfg.TLS.CertFile
+	if certPath == "" {
+		certPath = h.cfg.SAML.CertFile
+	}
+	tlsCertValid := checkTLSCertValidForCurrentIP(certPath, selectedIP)
+	requiresAdminAction := !isIPAvailable || (!tlsCertValid && selectedIP != "")
+
+	c.JSON(http.StatusOK, gin.H{
+		"selected_interface":                   selectedIface,
+		"selected_ip":                          selectedIP,
+		"is_ip_available":                      isIPAvailable,
+		"warning_message":                      warningMessage,
+		"available_interfaces":                 availableIfaces,
+		"detected_ip":                          selectedIP,
+		"previous_ip":                          "",
+		"interface_name":                       selectedIface,
+		"is_connected":                         isIPAvailable,
+		"public_base_url":                      publicBaseURL,
+		"public_url_mode":                      publicURLMode,
+		"tls_certificate_valid_for_current_ip": tlsCertValid,
+		"requires_admin_action":                requiresAdminAction,
+		"endpoints": gin.H{
+			"entity_id":          entityID,
+			"gateway_acs_url":    gatewayACSURL,
+			"sso_url":            ssoURL,
+			"slo_url":            sloURL,
+			"metadata_url":       metadataURL,
+			"idp_metadata_url":   idpMetadataURL,
+			"sp_metadata_url":    spMetadataURL,
+			"downstream_acs_url": h.cfg.SAML.ACSURL,
+		},
+	})
+}
+
+// HandleAdminNetworkConfigurationPost updates network interface selection and public URL mode settings.
+func (h *SAMLHandler) HandleAdminNetworkConfigurationPost(c *gin.Context) {
+	var req NetworkConfigurationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid request payload: " + err.Error()})
+		return
+	}
+
+	if req.InterfaceName == "" && req.PreferredInterface != "" {
+		req.InterfaceName = req.PreferredInterface
+	}
+
+	mode := strings.ToLower(strings.TrimSpace(req.Mode))
+	if mode == "" {
+		mode = "auto"
+	}
+	if mode != "auto" && mode != "manual" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Mode must be either 'auto' or 'manual'"})
+		return
+	}
+
+	manualURL := strings.TrimSpace(req.ManualPublicURL)
+	if mode == "manual" {
+		if manualURL == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Manual public URL is required when mode is 'manual'"})
+			return
+		}
+		parsed, err := url.ParseRequestURI(manualURL)
+		if err != nil || parsed.Host == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Manual public URL must be a valid absolute URL (e.g. https://sso.example.com:8443)"})
+			return
+		}
+		if parsed.Scheme != "http" && parsed.Scheme != "https" {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Manual public URL must use http or https scheme"})
+			return
+		}
+		if h.cfg.IsProduction() && parsed.Scheme != "https" {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "HTTPS is required for manual public URL in production mode"})
+			return
+		}
+	} else {
+		manualURL = ""
+	}
+
+	ipStr := strings.TrimSpace(req.IPAddress)
+	if mode != "manual" && ipStr != "" {
+		parsed := net.ParseIP(ipStr)
+		if parsed == nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid IPv4 address format"})
+			return
+		}
+		if parsed.IsLoopback() || parsed.IsUnspecified() {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Loopback (127.0.0.1) or unspecified (0.0.0.0) IP cannot be selected"})
+			return
+		}
+	}
+
+	if req.PublicPort < 0 || req.PublicPort > 65535 {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Public port must be between 1 and 65535"})
+		return
+	}
+
+	// Update NetworkManager
+	if h.netManager != nil {
+		h.netManager.UpdateSettings(req.InterfaceName, ipStr, req.CustomEntityID, manualURL, req.PublicPort)
+	}
+
+	// Persist via ConfigurationManager if available
+	if h.configManager != nil {
+		snap := h.configManager.GetConfig()
+		payload := config.ExtractPayloadFromConfig(snap)
+		payload.NetworkMode = mode
+		payload.ManualPublicURL = manualURL
+		if req.InterfaceName != "" {
+			payload.SelectedNetworkInterface = req.InterfaceName
+			payload.PreferredNetworkInterface = req.InterfaceName
+		}
+		if ipStr != "" {
+			payload.SelectedNetworkIP = ipStr
+		}
+		if req.CustomEntityID != "" {
+			payload.EntityID = req.CustomEntityID
+		}
+		if req.PublicPort > 0 {
+			payload.PublicPort = req.PublicPort
+		}
+
+		if updated, err := h.configManager.UpdateAdminSettings(c.Request.Context(), payload); err != nil {
+			h.logger.Error("failed to persist network configuration via config manager", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to persist configuration: " + err.Error()})
+			return
+		} else if updated != nil && h.cfg != nil {
+			*h.cfg = *updated
+		}
+	} else if h.cfg != nil {
+		h.cfg.Server.NetworkMode = mode
+		h.cfg.Server.PublicURL = manualURL
+		if req.InterfaceName != "" {
+			h.cfg.Server.SelectedInterface = req.InterfaceName
+		}
+		if ipStr != "" {
+			h.cfg.Server.SelectedIP = ipStr
+		}
+		if req.CustomEntityID != "" {
+			h.cfg.SAML.EntityID = req.CustomEntityID
+		}
+		if req.PublicPort > 0 {
+			h.cfg.Server.Port = req.PublicPort
+		}
+	}
+
+	session := h.getAdminSession(c)
+	adminUser := "unknown"
+	if session != nil {
+		adminUser = session.Username
+	}
+	if h.auditLogger != nil {
+		h.auditLogger.Info("admin updated network configuration",
+			zap.String("admin_user", adminUser),
+			zap.String("mode", mode),
+			zap.String("manual_public_url", manualURL),
+			zap.String("interface_name", req.InterfaceName),
+			zap.String("ip_address", ipStr),
+			zap.Int("public_port", req.PublicPort),
+		)
+	}
+
+	// Return updated status
+	h.HandleAdminNetworkStatusGet(c)
 }

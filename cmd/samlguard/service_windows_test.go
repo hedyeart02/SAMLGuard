@@ -446,4 +446,3 @@ func TestWindowsServiceHandler_ResourceCleanupOnStop(t *testing.T) {
 		t.Fatalf("expected cleanup to be called on clean service stop")
 	}
 }
-

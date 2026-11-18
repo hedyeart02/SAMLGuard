@@ -48,11 +48,16 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Host            string        `mapstructure:"host"`
-	Port            int           `mapstructure:"port"`
-	ReadTimeout     time.Duration `mapstructure:"read_timeout"`
-	WriteTimeout    time.Duration `mapstructure:"write_timeout"`
-	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
+	Host               string        `mapstructure:"host"`
+	Port               int           `mapstructure:"port"`
+	ReadTimeout        time.Duration `mapstructure:"read_timeout"`
+	WriteTimeout       time.Duration `mapstructure:"write_timeout"`
+	ShutdownTimeout    time.Duration `mapstructure:"shutdown_timeout"`
+	PublicURL          string        `mapstructure:"public_url"`
+	NetworkMode        string        `mapstructure:"network_mode"`        // "auto" or "manual"
+	PreferredInterface string        `mapstructure:"preferred_interface"` // e.g. "eth0"
+	SelectedInterface  string        `mapstructure:"selected_interface"`  // explicitly selected network interface
+	SelectedIP         string        `mapstructure:"selected_ip"`         // explicitly selected host IPv4 address
 }
 
 func (s ServerConfig) Address() string {
@@ -128,31 +133,32 @@ type CustomerTenant struct {
 }
 
 type SAMLConfig struct {
-	EntityID              string                        `mapstructure:"entity_id"`
-	Issuer                string                        `mapstructure:"issuer"`
-	SSOURL                string                        `mapstructure:"sso_url"`
-	SLOURL                string                        `mapstructure:"slo_url"`
-	ACSURL                string                        `mapstructure:"acs_url"`
-	MetadataURL           string                        `mapstructure:"metadata_url"`
-	CertFile              string                        `mapstructure:"cert_file"`
-	KeyFile               string                        `mapstructure:"key_file"`
-	SignRequests          bool                          `mapstructure:"sign_requests"`
-	SignAssertions        bool                          `mapstructure:"sign_assertions"`
-	SignResponses         bool                          `mapstructure:"sign_responses"`
-	ActiveIdP             string                        `mapstructure:"active_idp"`
-	EnabledIdPs           []string                      `mapstructure:"enabled_idps"`
-	IdPProfiles           map[string]UpstreamIdPProfile `mapstructure:"idp_profiles"`
-	IdPMetadataURL        string                        `mapstructure:"idp_metadata_url"`
-	IdPEntityID           string                        `mapstructure:"idp_entity_id"`
-	IdPSSOURL             string                        `mapstructure:"idp_sso_url"`
-	IdPCertFile           string                        `mapstructure:"idp_cert_file"`
-	AllowedAudiences      []string                      `mapstructure:"allowed_audiences"`
-	DownstreamACSURLs     []string                      `mapstructure:"downstream_acs_urls"`
-	GroupMapping          map[string]string             `mapstructure:"group_mapping"`
-	DefaultGroups         []string                      `mapstructure:"default_groups"`
-	AuthnContextClassRef  string                        `mapstructure:"authn_context_class_ref"`
-	SPEntityID            string                        `mapstructure:"sp_entity_id"`
-	CustomerTenants       []CustomerTenant              `mapstructure:"customer_tenants"`
+	EntityID             string                        `mapstructure:"entity_id"`
+	Issuer               string                        `mapstructure:"issuer"`
+	SSOURL               string                        `mapstructure:"sso_url"`
+	SLOURL               string                        `mapstructure:"slo_url"`
+	ACSURL               string                        `mapstructure:"acs_url"`
+	GatewayACSURL        string                        `mapstructure:"gateway_acs_url"`
+	MetadataURL          string                        `mapstructure:"metadata_url"`
+	CertFile             string                        `mapstructure:"cert_file"`
+	KeyFile              string                        `mapstructure:"key_file"`
+	SignRequests         bool                          `mapstructure:"sign_requests"`
+	SignAssertions       bool                          `mapstructure:"sign_assertions"`
+	SignResponses        bool                          `mapstructure:"sign_responses"`
+	ActiveIdP            string                        `mapstructure:"active_idp"`
+	EnabledIdPs          []string                      `mapstructure:"enabled_idps"`
+	IdPProfiles          map[string]UpstreamIdPProfile `mapstructure:"idp_profiles"`
+	IdPMetadataURL       string                        `mapstructure:"idp_metadata_url"`
+	IdPEntityID          string                        `mapstructure:"idp_entity_id"`
+	IdPSSOURL            string                        `mapstructure:"idp_sso_url"`
+	IdPCertFile          string                        `mapstructure:"idp_cert_file"`
+	AllowedAudiences     []string                      `mapstructure:"allowed_audiences"`
+	DownstreamACSURLs    []string                      `mapstructure:"downstream_acs_urls"`
+	GroupMapping         map[string]string             `mapstructure:"group_mapping"`
+	DefaultGroups        []string                      `mapstructure:"default_groups"`
+	AuthnContextClassRef string                        `mapstructure:"authn_context_class_ref"`
+	SPEntityID           string                        `mapstructure:"sp_entity_id"`
+	CustomerTenants      []CustomerTenant              `mapstructure:"customer_tenants"`
 }
 
 // EffectiveActiveIdP returns the active upstream SAML IdP identifier ("simulator", "entra", "keycloak", or "custom").
@@ -1603,4 +1609,80 @@ func (c *Config) AllowedCSPFormAction() string {
 	}
 
 	return strings.Join(directives, " ")
+}
+
+// Clone creates a deep copy of Config to allow safe, race-free snapshotting.
+func (c *Config) Clone() *Config {
+	if c == nil {
+		return nil
+	}
+
+	clone := *c
+
+	// Deep copy slices & maps
+	if len(c.TLS.AutoTLS.Domains) > 0 {
+		clone.TLS.AutoTLS.Domains = append([]string(nil), c.TLS.AutoTLS.Domains...)
+	}
+
+	if len(c.SAML.EnabledIdPs) > 0 {
+		clone.SAML.EnabledIdPs = append([]string(nil), c.SAML.EnabledIdPs...)
+	}
+	if len(c.SAML.AllowedAudiences) > 0 {
+		clone.SAML.AllowedAudiences = append([]string(nil), c.SAML.AllowedAudiences...)
+	}
+	if len(c.SAML.DownstreamACSURLs) > 0 {
+		clone.SAML.DownstreamACSURLs = append([]string(nil), c.SAML.DownstreamACSURLs...)
+	}
+	if len(c.SAML.DefaultGroups) > 0 {
+		clone.SAML.DefaultGroups = append([]string(nil), c.SAML.DefaultGroups...)
+	}
+
+	if c.SAML.IdPProfiles != nil {
+		clone.SAML.IdPProfiles = make(map[string]UpstreamIdPProfile, len(c.SAML.IdPProfiles))
+		for k, v := range c.SAML.IdPProfiles {
+			clone.SAML.IdPProfiles[k] = v
+		}
+	}
+
+	if c.SAML.GroupMapping != nil {
+		clone.SAML.GroupMapping = make(map[string]string, len(c.SAML.GroupMapping))
+		for k, v := range c.SAML.GroupMapping {
+			clone.SAML.GroupMapping[k] = v
+		}
+	}
+
+	if len(c.SAML.CustomerTenants) > 0 {
+		clone.SAML.CustomerTenants = append([]CustomerTenant(nil), c.SAML.CustomerTenants...)
+	}
+
+	if len(c.MFA.EnabledProviders) > 0 {
+		clone.MFA.EnabledProviders = append([]string(nil), c.MFA.EnabledProviders...)
+	}
+
+	if len(c.Security.CORSAllowedOrigins) > 0 {
+		clone.Security.CORSAllowedOrigins = append([]string(nil), c.Security.CORSAllowedOrigins...)
+	}
+	if len(c.Security.TrustedProxies) > 0 {
+		clone.Security.TrustedProxies = append([]string(nil), c.Security.TrustedProxies...)
+	}
+
+	if c.SMS.Profiles != nil {
+		clone.SMS.Profiles = make(map[string]SMSGatewayProfile, len(c.SMS.Profiles))
+		for k, v := range c.SMS.Profiles {
+			clone.SMS.Profiles[k] = v
+		}
+	}
+
+	if len(c.ITA.ManualAllowedUsers) > 0 {
+		clone.ITA.ManualAllowedUsers = append([]string(nil), c.ITA.ManualAllowedUsers...)
+	}
+
+	if c.Branding.Profiles != nil {
+		clone.Branding.Profiles = make(map[string]ThemeProfile, len(c.Branding.Profiles))
+		for k, v := range c.Branding.Profiles {
+			clone.Branding.Profiles[k] = v
+		}
+	}
+
+	return &clone
 }

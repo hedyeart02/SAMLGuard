@@ -390,4 +390,3 @@ database:
 		t.Errorf("expected AutoTLS config without cert_file/key_file to validate, got: %v", err)
 	}
 }
-

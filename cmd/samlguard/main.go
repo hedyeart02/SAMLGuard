@@ -33,6 +33,7 @@ import (
 	"github.com/hidayat-SE/samlguard/internal/gateway/resolver"
 	"github.com/hidayat-SE/samlguard/internal/gateway/validator"
 	"github.com/hidayat-SE/samlguard/internal/mfa"
+	"github.com/hidayat-SE/samlguard/internal/network"
 	"github.com/hidayat-SE/samlguard/pkg/logger"
 	"github.com/hidayat-SE/samlguard/pkg/middleware"
 	"github.com/hidayat-SE/samlguard/pkg/ratelimiter"
@@ -46,7 +47,7 @@ import (
 )
 
 // Version string populated at build time
-var Version = "v1.1.1"
+var Version = "v1.2.0"
 
 // SetupAppWithCleanup constructs and wires all runtime dependencies into the Gin engine
 // and returns a resource cleanup function to be invoked on server shutdown.
@@ -106,6 +107,71 @@ func SetupAppWithCleanup(cfg *config.Config, appLogger *logger.Logger) (*gin.Eng
 		return nil, nil, fmt.Errorf("mfa storage initialization failed: %w", err)
 	}
 
+	if cfg.MFA.EncryptionKey != "" {
+		if keyErr := mfaStorage.SetEncryptionKeyFromHex(cfg.MFA.EncryptionKey); keyErr != nil {
+			_ = mfaStorage.Close()
+			return nil, nil, fmt.Errorf("failed to configure storage encryption key: %w", keyErr)
+		}
+	}
+
+	cfgManager, err := config.NewManager(cfg, mfaStorage)
+	if err != nil {
+		_ = mfaStorage.Close()
+		return nil, nil, fmt.Errorf("config manager initialization failed: %w", err)
+	}
+	*cfg = *cfgManager.GetConfig()
+
+	// Discover available network interfaces on startup
+	availableIfaces, _ := network.DiscoverInterfaces(false)
+
+	selectedIface := cfg.Server.SelectedInterface
+	selectedIP := cfg.Server.SelectedIP
+
+	// If no interface/IP persisted yet, select the first available LAN interface
+	if selectedIP == "" && len(availableIfaces) > 0 {
+		selectedIface = availableIfaces[0].Name
+		selectedIP = availableIfaces[0].PrimaryIP
+		cfg.Server.SelectedInterface = selectedIface
+		cfg.Server.SelectedIP = selectedIP
+	}
+
+	// Verify whether the selected IP still exists on the host
+	if selectedIP != "" {
+		if _, found := network.FindInterfaceByIP(selectedIP, true); !found {
+			appLogger.System().Warn("configured host network IP is not available on any host interface",
+				zap.String("selected_interface", selectedIface),
+				zap.String("selected_ip", selectedIP),
+			)
+			// Crucial requirement: Do NOT silently switch interfaces. Keep persisted selection and alert admin.
+		} else {
+			appLogger.System().Info("network interface verified",
+				zap.String("interface", selectedIface),
+				zap.String("ip", selectedIP),
+			)
+		}
+	}
+
+	// Initialize simplified NetworkManager
+	netManager := network.NewManager(network.ManagerOptions{
+		SelectedInterface: selectedIface,
+		SelectedIP:        selectedIP,
+		Port:              cfg.Server.Port,
+		TLSEnabled:        cfg.TLS.Enabled,
+		CustomEntityID:    cfg.SAML.EntityID,
+		ManualPublicURL:   cfg.Server.PublicURL,
+		DownstreamACSURL:  cfg.SAML.ACSURL,
+		ExtraAudiences:    cfg.SAML.AllowedAudiences,
+		ExtraOrigins:      cfg.Security.CORSAllowedOrigins,
+	})
+
+	// Align in-memory runtime endpoints if auto-mode and an explicit interface was selected
+	if !netManager.IsManualOverride() && cfg.Server.SelectedIP != "" {
+		cfg.SAML.EntityID = netManager.EntityID()
+		cfg.SAML.SSOURL = netManager.SSOURL()
+		cfg.SAML.SLOURL = netManager.SLOURL()
+		cfg.SAML.MetadataURL = netManager.MetadataURL()
+	}
+
 	cleanup := func() {
 		if mfaStorage != nil {
 			if closeErr := mfaStorage.Close(); closeErr != nil {
@@ -114,20 +180,6 @@ func SetupAppWithCleanup(cfg *config.Config, appLogger *logger.Logger) (*gin.Eng
 				appLogger.System().Info("database storage closed successfully")
 			}
 		}
-	}
-
-	if cfg.MFA.EncryptionKey != "" {
-		if keyErr := mfaStorage.SetEncryptionKeyFromHex(cfg.MFA.EncryptionKey); keyErr != nil {
-			cleanup()
-			return nil, nil, fmt.Errorf("failed to configure storage encryption key: %w", keyErr)
-		}
-	}
-
-	if savedSettings, loadErr := mfaStorage.GetAdminSettings(context.Background()); loadErr == nil && savedSettings != nil {
-		config.ApplyAdminSettings(cfg, savedSettings)
-		appLogger.System().Info("loaded persisted gateway settings from database", zap.String("db_path", cfg.Database.Path))
-	} else if loadErr != nil && !errors.Is(loadErr, mfa.ErrNotFound) {
-		appLogger.System().Warn("failed loading persisted gateway settings from database", zap.Error(loadErr))
 	}
 
 	// 1. Federation Adapters & Registry
@@ -176,7 +228,33 @@ func SetupAppWithCleanup(cfg *config.Config, appLogger *logger.Logger) (*gin.Eng
 	schemaValidator := &validator.DefaultSchemaValidator{}
 	replayValidator := validator.NewDefaultReplayValidator(5 * time.Minute)
 	clockValidator := &validator.DefaultClockValidator{AllowedSkew: 3 * time.Minute}
-	policyValidator := &validator.DefaultPolicyValidator{ExpectedDestination: cfg.SAML.SSOURL}
+	var allowedDests []string
+	if cfg.SAML.SSOURL != "" {
+		allowedDests = append(allowedDests, cfg.SAML.SSOURL)
+		if strings.HasSuffix(cfg.SAML.SSOURL, "/login") {
+			allowedDests = append(allowedDests, strings.TrimSuffix(cfg.SAML.SSOURL, "/login")+"/saml/sso")
+		} else if strings.HasSuffix(cfg.SAML.SSOURL, "/saml/sso") {
+			allowedDests = append(allowedDests, strings.TrimSuffix(cfg.SAML.SSOURL, "/saml/sso")+"/login")
+		}
+	}
+	if netManager != nil {
+		allowedDests = append(allowedDests,
+			netManager.BaseURL()+"/saml/sso",
+			netManager.BaseURL()+"/login",
+			netManager.SSOURL(),
+		)
+	}
+
+	policyValidator := &validator.DefaultPolicyValidator{
+		ExpectedDestination: cfg.SAML.SSOURL,
+		AllowedDestinations: allowedDests,
+		DestinationResolverFunc: func() string {
+			if netManager != nil {
+				return netManager.SSOURL()
+			}
+			return cfg.SAML.SSOURL
+		},
+	}
 	contextBuilder := builder.NewDefaultContextBuilder()
 
 	// 4. Construct production DefaultAuthnPipeline
@@ -230,6 +308,7 @@ func SetupAppWithCleanup(cfg *config.Config, appLogger *logger.Logger) (*gin.Eng
 		return nil, nil, fmt.Errorf("handler initialization failed: %w", err)
 	}
 	samlHandler.SetAuditLogger(appLogger.Audit())
+	samlHandler.SetNetworkManager(netManager, cfgManager)
 
 	// Static assets (embedded logos, icons & public background assets)
 	if staticFS, err := web.StaticFS(); err == nil {
@@ -303,6 +382,8 @@ func SetupAppWithCleanup(cfg *config.Config, appLogger *logger.Logger) (*gin.Eng
 		adminProtected.POST("/users/reset-mfa", samlHandler.HandleAdminUserResetMFAPost)
 		adminProtected.GET("/cert/download", samlHandler.HandleAdminCertDownload)
 		adminProtected.POST("/branding/upload", samlHandler.HandleAdminBrandingUploadPost)
+		adminProtected.GET("/network/status", samlHandler.HandleAdminNetworkStatusGet)
+		adminProtected.POST("/network/configuration", samlHandler.HandleAdminNetworkConfigurationPost)
 	}
 
 	r.GET("/admin", func(c *gin.Context) {

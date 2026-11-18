@@ -434,9 +434,9 @@
                     <div class="sub-box">
                         <h3>Step 1: Upload &amp; Extract Package</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem;">Upload the archive for your architecture (<code>linux-amd64</code> or <code>linux-arm64</code>) to the Linux host and extract it:</p>
-                        <pre>scp dist/samlguard-v1.1.1-linux-amd64.tar.gz root@&lt;server-ip&gt;:/tmp/
+                        <pre>scp dist/samlguard-v1.2.0-linux-amd64.tar.gz root@&lt;server-ip&gt;:/tmp/
 ssh root@&lt;server-ip&gt;
-mkdir -p /tmp/samlguard-pkg &amp;&amp; tar -xzf /tmp/samlguard-v1.1.1-linux-amd64.tar.gz -C /tmp/samlguard-pkg
+mkdir -p /tmp/samlguard-pkg &amp;&amp; tar -xzf /tmp/samlguard-v1.2.0-linux-amd64.tar.gz -C /tmp/samlguard-pkg
 cd /tmp/samlguard-pkg/*</pre>
                     </div>
                     <div class="sub-box">
@@ -468,7 +468,7 @@ sudo firewall-cmd --permanent --add-port=8443/tcp
 sudo firewall-cmd --reload
 
 # Upgrade later:
-sudo bash scripts/linux/upgrade.sh /tmp/samlguard-v1.1.1-linux-amd64.tar.gz</pre>
+sudo bash scripts/linux/upgrade.sh /tmp/samlguard-v1.2.0-linux-amd64.tar.gz</pre>
                     </div>
                 </div>
             </section>
@@ -483,7 +483,7 @@ sudo bash scripts/linux/upgrade.sh /tmp/samlguard-v1.1.1-linux-amd64.tar.gz</pre
                     <div class="sub-box">
                         <h3>Step 1: Upload &amp; Install Windows Service</h3>
                         <ol class="guide-list">
-                            <li>Copy <code>dist\samlguard-v1.1.1-windows-amd64.zip</code> to the Windows server and extract it (e.g. <code>C:\Temp\samlguard</code>).</li>
+                            <li>Copy <code>dist\samlguard-v1.2.0-windows-amd64.zip</code> to the Windows server and extract it (e.g. <code>C:\Temp\samlguard</code>).</li>
                             <li>Open <strong>PowerShell as Administrator</strong> inside the extracted folder and run:</li>
                         </ol>
                         <pre>.\scripts\windows\install-service.ps1 -BinarySource .\samlguard.exe</pre>

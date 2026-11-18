@@ -1473,7 +1473,7 @@
                     <span class="status-dot"></span>
                     <span>Gateway Online</span>
                 </div>
-                <span>v1.1.1</span>
+                <span>v1.2.0</span>
             </div>
         </div>
     </aside>
@@ -2187,6 +2187,146 @@
 
                 <!-- TAB 3: SERVICE PROVIDERS (Downstream SP - Schneider ITA) -->
                 <div id="tab-downstream" class="tab-content-pane">
+                    <!-- CARD: Host Network Interface & SAML Endpoints -->
+                    <div class="card" style="margin-bottom: 1.5rem;">
+                        <div class="card-header">
+                            <div>
+                                <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span>🌐 SAMLGuard Host Network Interface & Endpoints</span>
+                                </h2>
+                                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
+                                    Select the host network interface and IPv4 address used for canonical SAML endpoints.
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <span id="netStatusPill" class="badge {{if .IsNetworkIPAvailable}}badge-success{{else}}badge-danger{{end}}">
+                                    {{if .IsNetworkIPAvailable}}● IP Active{{else}}⚠️ IP Missing{{end}}
+                                </span>
+                                <span id="netInterfacePill" class="badge badge-info" title="Selected Network Interface">
+                                    🔌 {{if .SelectedNetworkInterface}}{{.SelectedNetworkInterface}}{{else}}None{{end}}
+                                </span>
+                                <span id="netModeBadge" class="badge {{if eq .PublicURLMode "manual"}}badge-warning{{else}}badge-success{{end}}">
+                                    {{if eq .PublicURLMode "manual"}}⚡ Manual Override{{else}}🔌 Interface Bound{{end}}
+                                </span>
+                                <span id="netTLSSANPill" class="badge {{if .TLSCertValidForCurrentIP}}badge-success{{else}}badge-warning{{end}}" title="TLS Certificate SAN match for selected host IP">
+                                    {{if .TLSCertValidForCurrentIP}}🔒 TLS SAN Valid{{else}}⚠️ TLS SAN Mismatch{{end}}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Missing / Disconnected IP Alert Banner -->
+                        <div id="netMissingIPBanner" class="flash-alert alert-warning" style="{{if .IsNetworkIPAvailable}}display: none;{{end}} margin-bottom: 1.25rem; border-left: 4px solid var(--accent-warning, #f59e0b);">
+                            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                                <span style="font-size: 1.5rem; line-height: 1;">⚠️</span>
+                                <div>
+                                    <strong style="color: var(--text-primary); font-size: 0.95rem;">Configured Host Network Interface / IP Not Detected</strong>
+                                    <p style="margin: 0.25rem 0 0.5rem 0; font-size: 0.85rem; color: var(--text-secondary);">
+                                        The configured IP <code id="netMissingIPVal" style="font-weight: 700;">{{.SelectedNetworkIP}}</code> is not currently assigned to any active interface on this machine.
+                                        SAMLGuard will not silently switch interfaces. Please select an active interface below and click <strong>Save Configuration</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Interface Selection Section -->
+                        <div style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-card); margin-bottom: 1.25rem;">
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="netInterfaceSelect" style="font-weight: 600;">Network Interface & IPv4 Address</label>
+                                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                                    <select id="netInterfaceSelect" style="flex: 1; min-width: 250px;" onchange="onNetworkInterfaceSelectChange()">
+                                        {{range .AvailableInterfaces}}
+                                        <option value="{{.Name}}|{{.PrimaryIP}}" data-iface="{{.Name}}" data-ip="{{.PrimaryIP}}" {{if and (eq $.SelectedNetworkInterface .Name) (eq $.SelectedNetworkIP .PrimaryIP)}}selected{{end}}>
+                                            {{.DisplayName}} – {{.PrimaryIP}} {{if .IsVirtual}}[virtual]{{end}}
+                                        </option>
+                                        {{end}}
+                                    </select>
+                                    <button type="button" class="btn btn-secondary" onclick="refreshNetworkInterfaces()" style="white-space: nowrap;">
+                                        🔄 Refresh Interfaces
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="saveSelectedNetworkInterface()" style="white-space: nowrap;">
+                                        💾 Save Configuration
+                                    </button>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                                    <input type="checkbox" id="netIncludeVirtual" onchange="refreshNetworkInterfaces()" style="width: auto; margin: 0;">
+                                    <label for="netIncludeVirtual" style="font-size: 0.82rem; color: var(--text-muted); margin: 0; cursor: pointer;">
+                                        Show virtual & container interfaces (Docker, WSL, Hyper-V)
+                                    </label>
+                                </div>
+                                <div id="netSaveMsg" style="margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Endpoint Display Grid -->
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Selected SAMLGuard IP</label>
+                                <div class="input-group">
+                                    <input type="text" id="netSelectedIP" value="{{.SelectedNetworkIP}}" readonly style="background: var(--bg-card-subtle); font-family: monospace; font-weight: 600;">
+                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netSelectedIP')">Copy</button>
+                                </div>
+                                <p class="help-text">Active IPv4 host address explicitly selected by the administrator.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Canonical Public Base URL</label>
+                                <div class="input-group">
+                                    <input type="text" id="netPublicBaseURL" value="{{.PublicBaseURL}}" readonly style="background: var(--bg-card-subtle); font-family: monospace; font-weight: 600;">
+                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netPublicBaseURL')">Copy</button>
+                                </div>
+                                <p class="help-text">Root URL used for all public-facing authentication endpoints.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>SAMLGuard Gateway ACS URL (Inbound from Upstream IdP)</label>
+                                <div class="input-group">
+                                    <input type="text" id="netGatewayACSURL" value="{{.GatewayACSURL}}" readonly style="background: var(--bg-card-subtle); font-family: monospace;">
+                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netGatewayACSURL')">Copy</button>
+                                </div>
+                                <p class="help-text">Where Microsoft Entra / Keycloak posts SAML assertions back to SAMLGuard (<code>/saml/acs</code>).</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>SAMLGuard Metadata URL</label>
+                                <div class="input-group">
+                                    <input type="text" id="netMetadataURL" value="{{.PublicBaseURL}}/metadata" readonly style="background: var(--bg-card-subtle); font-family: monospace;">
+                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netMetadataURL')">Copy</button>
+                                </div>
+                                <p class="help-text">Public SAML 2.0 EntityDescriptor metadata endpoint.</p>
+                            </div>
+                        </div>
+
+                        <!-- Manual Public URL Override Section -->
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-card-subtle); border-radius: 8px; border: 1px solid var(--border-card);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div>
+                                    <strong style="color: var(--text-primary); font-size: 0.9rem;">Manual Public URL Override (Reverse Proxy / FQDN)</strong>
+                                    <p class="help-text" style="margin: 0.2rem 0 0 0;">Override host IP with a static DNS domain name or reverse proxy URL.</p>
+                                </div>
+                                <label class="toggle-label" style="margin: 0;">
+                                    <input type="checkbox" id="netManualOverrideToggle" onchange="toggleManualOverride(this.checked)" {{if eq .PublicURLMode "manual"}}checked{{end}}>
+                                    <span class="toggle-switch"></span>
+                                </label>
+                            </div>
+
+                            <div id="netManualOverrideControls" style="{{if ne .PublicURLMode "manual"}}display: none;{{end}} margin-top: 0.75rem;">
+                                <div class="grid-2" style="align-items: flex-end;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="netManualPublicURL">Custom Public URL (HTTPS / FQDN)</label>
+                                        <input type="url" id="netManualPublicURL" placeholder="https://samlguard.company.com:8443" value="{{.Settings.ManualPublicURL}}">
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button type="button" class="btn btn-primary" onclick="saveManualPublicURL(true)">Save Override</button>
+                                        <button type="button" class="btn btn-secondary" onclick="saveManualPublicURL(false)">Revert to Selected Interface</button>
+                                    </div>
+                                </div>
+                                <div id="netOverrideMsg" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card">
                         <div class="card-header">
                             <h2>🏢 Downstream Service Provider (Schneider Electric EcoStruxure IT Advisor)</h2>
@@ -3328,6 +3468,7 @@
         syncOTPProviderState();
         initBrandingProfilesUI();
         renderCustomerTenants();
+        // Dynamic network status is server-rendered on page load; refreshed on-demand via the Refresh button
 
         ['idp_entity_id', 'idp_sso_url', 'idp_metadata_url', 'idp_cert_file'].forEach(id => {
             const el = document.getElementById(id);
@@ -3373,6 +3514,244 @@
     }
 
     function copyText(elementId) { copyToClipboard(elementId); }
+
+    function copyInput(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const text = el.value || el.innerText || el.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard: ' + text);
+        }).catch(() => {
+            prompt('Copy this value:', text);
+        });
+    }
+
+    function onNetworkInterfaceSelectChange() {
+        const select = document.getElementById('netInterfaceSelect');
+        if (!select || !select.value) return;
+        const parts = select.value.split('|');
+        if (parts.length >= 2) {
+            const ip = parts[1];
+            const ipInput = document.getElementById('netSelectedIP');
+            if (ipInput) ipInput.value = ip;
+        }
+    }
+
+    async function refreshNetworkInterfaces() {
+        const select = document.getElementById('netInterfaceSelect');
+        const includeVirtual = document.getElementById('netIncludeVirtual')?.checked || false;
+        const msg = document.getElementById('netSaveMsg');
+        if (msg) msg.innerHTML = '<span style="color: var(--text-muted);">Scanning network interfaces...</span>';
+
+        try {
+            const res = await fetch('/admin/network/status?include_virtual=' + (includeVirtual ? 'true' : 'false'), {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+            if (!res.ok) {
+                if (msg) msg.innerHTML = '<span style="color: #f87171;">⚠️ Failed to scan network interfaces.</span>';
+                return;
+            }
+            const data = await res.json();
+
+            // Rebuild select options
+            if (select && data.available_interfaces) {
+                select.innerHTML = '';
+                data.available_interfaces.forEach(iface => {
+                    const optVal = iface.name + '|' + (iface.primary_ip || '');
+                    const opt = document.createElement('option');
+                    opt.value = optVal;
+                    opt.textContent = `${iface.display_name} – ${iface.primary_ip || 'no IPv4'} ${iface.is_virtual ? '[virtual]' : ''}`;
+                    if (data.selected_interface === iface.name && data.selected_ip === iface.primary_ip) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                });
+                if (!select.value && select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+            }
+
+            updateNetworkUI(data);
+            if (msg) msg.innerHTML = '<span style="color: #34d399;">Interfaces refreshed.</span>';
+            setTimeout(() => { if (msg) msg.innerHTML = ''; }, 3000);
+        } catch (err) {
+            if (msg) msg.innerHTML = `<span style="color: #f87171;">⚠️ Error: ${err.message}</span>`;
+        }
+    }
+
+    async function saveSelectedNetworkInterface() {
+        const select = document.getElementById('netInterfaceSelect');
+        const msg = document.getElementById('netSaveMsg');
+        if (!select || !select.value) {
+            if (msg) msg.innerHTML = '<span style="color: #f87171;">⚠️ Please select an interface.</span>';
+            return;
+        }
+
+        const parts = select.value.split('|');
+        const ifaceName = parts[0];
+        const ip = parts[1] || '';
+        const csrfToken = '{{.CSRFToken}}';
+
+        if (msg) msg.innerHTML = '<span style="color: var(--text-muted);">Saving network configuration...</span>';
+
+        try {
+            const res = await fetch('/admin/network/configuration', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({
+                    mode: 'auto',
+                    interface_name: ifaceName,
+                    ip_address: ip
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (msg) msg.innerHTML = '<span style="color: #34d399;">✅ Network interface saved and endpoints updated.</span>';
+                updateNetworkUI(data);
+                setTimeout(() => { if (msg) msg.innerHTML = ''; }, 4000);
+            } else {
+                if (msg) msg.innerHTML = `<span style="color: #f87171;">⚠️ ${data.error || 'Failed to save configuration'}</span>`;
+            }
+        } catch (err) {
+            if (msg) msg.innerHTML = `<span style="color: #f87171;">⚠️ Network Error: ${err.message}</span>`;
+        }
+    }
+
+    async function saveManualPublicURL(enable) {
+        const msg = document.getElementById('netOverrideMsg');
+        const manualURL = enable ? (document.getElementById('netManualPublicURL')?.value || '').trim() : '';
+        const mode = enable ? 'manual' : 'auto';
+        const csrfToken = '{{.CSRFToken}}';
+
+        if (msg) msg.innerHTML = '<span style="color: var(--text-muted);">Saving public URL override...</span>';
+
+        try {
+            const res = await fetch('/admin/network/configuration', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({
+                    mode: mode,
+                    manual_public_url: manualURL
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (msg) msg.innerHTML = '<span style="color: #34d399;">✅ Configuration saved successfully.</span>';
+                updateNetworkUI(data);
+                const toggle = document.getElementById('netManualOverrideToggle');
+                if (toggle) toggle.checked = (mode === 'manual');
+                toggleManualOverride(mode === 'manual');
+                setTimeout(() => { if (msg) msg.innerHTML = ''; }, 4000);
+            } else {
+                if (msg) msg.innerHTML = `<span style="color: #f87171;">⚠️ ${data.error || 'Failed to update configuration'}</span>`;
+            }
+        } catch (err) {
+            if (msg) msg.innerHTML = `<span style="color: #f87171;">⚠️ Network Error: ${err.message}</span>`;
+        }
+    }
+
+    function toggleManualOverride(enable) {
+        const controls = document.getElementById('netManualOverrideControls');
+        if (controls) {
+            controls.style.display = enable ? 'block' : 'none';
+        }
+    }
+
+    function updateNetworkUI(data) {
+        if (!data) return;
+
+        // 1. Update Selected IP & Base URL inputs
+        const selectedIPInput = document.getElementById('netSelectedIP');
+        if (selectedIPInput && data.selected_ip) {
+            selectedIPInput.value = data.selected_ip;
+        }
+
+        const publicBaseURLInput = document.getElementById('netPublicBaseURL');
+        if (publicBaseURLInput && data.public_base_url) {
+            publicBaseURLInput.value = data.public_base_url;
+        }
+
+        const gatewayACSInput = document.getElementById('netGatewayACSURL');
+        if (gatewayACSInput && data.endpoints && data.endpoints.gateway_acs_url) {
+            gatewayACSInput.value = data.endpoints.gateway_acs_url;
+        }
+
+        const metaURLInput = document.getElementById('netMetadataURL');
+        if (metaURLInput && data.endpoints && data.endpoints.metadata_url) {
+            metaURLInput.value = data.endpoints.metadata_url;
+        }
+
+        // 2. Update status badges
+        const statusPill = document.getElementById('netStatusPill');
+        if (statusPill) {
+            statusPill.className = data.is_ip_available ? 'badge badge-success' : 'badge badge-danger';
+            statusPill.textContent = data.is_ip_available ? '● IP Active' : '⚠️ IP Missing';
+        }
+
+        const ifacePill = document.getElementById('netInterfacePill');
+        if (ifacePill && data.selected_interface) {
+            ifacePill.textContent = '🔌 ' + data.selected_interface;
+        }
+
+        const modeBadge = document.getElementById('netModeBadge');
+        if (modeBadge) {
+            modeBadge.className = data.public_url_mode === 'manual' ? 'badge badge-warning' : 'badge badge-success';
+            modeBadge.textContent = data.public_url_mode === 'manual' ? '⚡ Manual Override' : '🔌 Interface Bound';
+        }
+
+        const tlsPill = document.getElementById('netTLSSANPill');
+        if (tlsPill) {
+            tlsPill.className = data.tls_certificate_valid_for_current_ip ? 'badge badge-success' : 'badge badge-warning';
+            tlsPill.textContent = data.tls_certificate_valid_for_current_ip ? '🔒 TLS SAN Valid' : '⚠️ TLS SAN Mismatch';
+        }
+
+        // 3. Update Missing IP Banner
+        const missingBanner = document.getElementById('netMissingIPBanner');
+        if (missingBanner) {
+            if (!data.is_ip_available && data.selected_ip) {
+                const missingVal = document.getElementById('netMissingIPVal');
+                if (missingVal) missingVal.textContent = data.selected_ip;
+                missingBanner.style.display = 'block';
+            } else {
+                missingBanner.style.display = 'none';
+            }
+        }
+
+        // 4. Update Downstream SP inputs & guide elements if running in auto mode
+        if (data.public_url_mode === 'auto') {
+            const entityInput = document.getElementById('entity_id');
+            if (entityInput && data.endpoints && data.endpoints.entity_id) {
+                entityInput.value = data.endpoints.entity_id;
+            }
+
+            const ssoInput = document.getElementById('sso_url');
+            if (ssoInput && data.endpoints && data.endpoints.sso_url) {
+                ssoInput.value = data.endpoints.sso_url;
+            }
+
+            const sloInput = document.getElementById('slo_url');
+            if (sloInput && data.endpoints && data.endpoints.slo_url) {
+                sloInput.value = data.endpoints.slo_url;
+            }
+        }
+
+        // 5. Update ITA Setup Guide elements
+        const guideEntity = document.getElementById('itaGuideIdPEntityID');
+        if (guideEntity && data.endpoints && data.endpoints.entity_id) {
+            guideEntity.textContent = data.endpoints.entity_id;
+        }
+        const guideSSO = document.getElementById('itaGuideSSO');
+        if (guideSSO && data.endpoints && data.endpoints.sso_url) {
+            guideSSO.textContent = data.endpoints.sso_url;
+        }
+    }
 
     function applyPreset(preset) {
         selectUpstreamIdP(preset);

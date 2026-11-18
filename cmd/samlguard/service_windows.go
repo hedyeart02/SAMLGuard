@@ -145,4 +145,3 @@ func runAsWindowsService(name string, srv *http.Server, cfg *config.Config, appL
 	}
 	return svc.Run(name, service)
 }
-

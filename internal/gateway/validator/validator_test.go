@@ -147,3 +147,36 @@ func TestPolicyValidator(t *testing.T) {
 	}
 }
 
+func TestPolicyValidator_DynamicDestinationResolver(t *testing.T) {
+	currentExpected := "https://192.168.0.178:18080/login"
+
+	v := &DefaultPolicyValidator{
+		DestinationResolverFunc: func() string {
+			return currentExpected
+		},
+	}
+
+	// 1. Initial destination matches
+	ctx1 := &model.AuthenticationContext{
+		Destination: "https://192.168.0.178:18080/login",
+	}
+	if err := v.ValidatePolicy(ctx1); err != nil {
+		t.Fatalf("expected initial destination to validate: %v", err)
+	}
+
+	// 2. Host IP changes dynamically to 192.168.0.220 without validator re-instantiation
+	currentExpected = "https://192.168.0.220:18080/login"
+
+	// Old destination should now be rejected
+	if err := v.ValidatePolicy(ctx1); err == nil {
+		t.Fatal("expected old destination to be rejected after IP change, got nil")
+	}
+
+	// New destination should validate successfully
+	ctx2 := &model.AuthenticationContext{
+		Destination: "https://192.168.0.220:18080/login",
+	}
+	if err := v.ValidatePolicy(ctx2); err != nil {
+		t.Fatalf("expected new dynamic destination to validate after IP shift: %v", err)
+	}
+}

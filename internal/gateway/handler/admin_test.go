@@ -1102,23 +1102,23 @@ func TestAdminAutoTLS_SaveAndValidation(t *testing.T) {
 
 	// 2. Accept valid public DNS domain
 	goodForm := url.Values{
-		"tls_submitted":               {"1"},
-		"tls_enabled":                 {"on"},
-		"auto_tls_enabled":            {"on"},
-		"auto_tls_domains_str":        {"sso.example.com"},
-		"auto_tls_email":              {"admin@example.com"},
-		"auto_tls_cache_dir":          {"certs/autocert"},
+		"tls_submitted":                {"1"},
+		"tls_enabled":                  {"on"},
+		"auto_tls_enabled":             {"on"},
+		"auto_tls_domains_str":         {"sso.example.com"},
+		"auto_tls_email":               {"admin@example.com"},
+		"auto_tls_cache_dir":           {"certs/autocert"},
 		"auto_tls_http_challenge_addr": {":80"},
-		"idp_entity_id":               {h.cfg.SAML.IdPEntityID},
-		"idp_sso_url":                 {h.cfg.SAML.IdPSSOURL},
-		"entity_id":                   {h.cfg.SAML.EntityID},
-		"acs_url":                     {h.cfg.SAML.ACSURL},
-		"mfa_default_provider":        {"totp"},
-		"mfa_issuer":                  {"SAMLGuard"},
-		"otp_expiry":                  {"5m"},
-		"resend_cooldown":             {"60s"},
-		"smtp_host":                   {"localhost"},
-		"smtp_port":                   {"1025"},
+		"idp_entity_id":                {h.cfg.SAML.IdPEntityID},
+		"idp_sso_url":                  {h.cfg.SAML.IdPSSOURL},
+		"entity_id":                    {h.cfg.SAML.EntityID},
+		"acs_url":                      {h.cfg.SAML.ACSURL},
+		"mfa_default_provider":         {"totp"},
+		"mfa_issuer":                   {"SAMLGuard"},
+		"otp_expiry":                   {"5m"},
+		"resend_cooldown":              {"60s"},
+		"smtp_host":                    {"localhost"},
+		"smtp_port":                    {"1025"},
 	}
 	reqGood := httptest.NewRequest(http.MethodPost, "/admin/settings", strings.NewReader(goodForm.Encode()))
 	reqGood.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -1154,4 +1154,3 @@ func TestAdminDeploymentGuide_Render(t *testing.T) {
 		}
 	}
 }
-

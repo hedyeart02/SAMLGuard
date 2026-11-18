@@ -661,7 +661,9 @@ func (l *pipeListener) Close() error {
 	return nil
 }
 
-func (l *pipeListener) Addr() net.Addr { return &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 18080} }
+func (l *pipeListener) Addr() net.Addr {
+	return &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 18080}
+}
 
 func startInMemoryTLSServer(t *testing.T, body string, dnsSAN string) (func(context.Context, string, string) (net.Conn, error), []byte) {
 	t.Helper()
