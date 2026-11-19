@@ -56,7 +56,7 @@ func DiscoverInterfaces(includeVirtual bool) ([]InterfaceInfo, error) {
 		return nil, fmt.Errorf("enumerating network interfaces: %w", err)
 	}
 
-	var results []InterfaceInfo
+	results := make([]InterfaceInfo, 0)
 	for _, iface := range ifaces {
 		// Exclude loopback
 		if iface.Flags&net.FlagLoopback != 0 {

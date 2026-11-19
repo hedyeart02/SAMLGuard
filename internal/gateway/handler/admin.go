@@ -1629,6 +1629,9 @@ func (h *SAMLHandler) buildAdminViewModel(adminUsername, successMsg, errorMsg st
 	}
 
 	availableIfaces, _ := network.DiscoverInterfaces(false)
+	if availableIfaces == nil {
+		availableIfaces = []network.InterfaceInfo{}
+	}
 
 	certPath := h.cfg.TLS.CertFile
 	if certPath == "" {
@@ -1860,6 +1863,9 @@ func (h *SAMLHandler) HandleAdminNetworkStatusGet(c *gin.Context) {
 	availableIfaces, err := network.DiscoverInterfaces(includeVirtual)
 	if err != nil {
 		h.logger.Warn("failed to discover network interfaces", zap.Error(err))
+	}
+	if availableIfaces == nil {
+		availableIfaces = []network.InterfaceInfo{}
 	}
 
 	selectedIP := ""

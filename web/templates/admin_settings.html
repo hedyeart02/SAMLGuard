@@ -756,6 +756,84 @@
             width: 100%;
         }
 
+        /* Toast Notifications (Top-Right Floating) */
+        .toast-container {
+            position: fixed;
+            top: 1.25rem;
+            right: 1.5rem;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+            max-width: 440px;
+            width: calc(100% - 3rem);
+        }
+
+        .toast-alert {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.95rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .toast-alert.toast-success {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            border-left: 4px solid var(--brand-green, #3dcd58);
+            color: #34d399;
+        }
+
+        .toast-alert.toast-danger {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            border-left: 4px solid #ef4444;
+            color: #f87171;
+        }
+
+        .toast-alert.fade-out {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+
+        .toast-close-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.15rem;
+            line-height: 1;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .toast-close-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
         /* Alerts */
         .flash-alert {
             padding: 0.85rem 1.15rem;
@@ -1052,12 +1130,28 @@
             box-shadow: 0 0 0 3px var(--brand-green-glow);
         }
 
-        input[type="checkbox"] {
+        .toggle-label input[type="checkbox"] {
             position: absolute;
             opacity: 0;
             width: 0;
             height: 0;
             pointer-events: none;
+        }
+
+        #netIncludeVirtual,
+        input[type="checkbox"].form-checkbox {
+            position: static !important;
+            display: inline-block !important;
+            opacity: 1 !important;
+            width: 16px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            min-height: 16px !important;
+            pointer-events: auto !important;
+            accent-color: var(--brand-green, #3dcd58) !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+            vertical-align: middle !important;
         }
 
         /* Tables */
@@ -1355,6 +1449,194 @@
             height: 15px;
             cursor: pointer;
         }
+
+        /* ----------------- LEVEL 2 CATEGORY NAVIGATION ----------------- */
+        .category-nav-wrapper {
+            margin-bottom: 1.25rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 0.4rem;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .category-nav {
+            display: flex;
+            gap: 0.35rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-nav::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .category-nav::-webkit-scrollbar-thumb {
+            background: var(--border-input);
+            border-radius: 4px;
+        }
+
+        .category-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.18s ease;
+        }
+
+        .category-nav-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-card-subtle);
+            border-color: var(--border-main);
+        }
+
+        .category-nav-btn.active {
+            background: var(--bg-card-subtle);
+            color: var(--brand-green);
+            border-color: var(--brand-green);
+            font-weight: 600;
+            box-shadow: 0 0 12px var(--brand-green-glow);
+        }
+
+        .category-nav-btn .cat-icon {
+            font-size: 1.05rem;
+            line-height: 1;
+        }
+
+        .category-pane {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .category-pane.active {
+            display: block;
+        }
+
+        /* ----------------- COLLAPSIBLE SETTINGS SECTION (ACCORDION) ----------------- */
+        .accordion-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            margin-bottom: 1.15rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .accordion-section:hover {
+            border-color: rgba(0, 176, 80, 0.35);
+        }
+
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 1.4rem;
+            background: var(--bg-card);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s ease;
+            gap: 1rem;
+        }
+
+        .accordion-header:hover {
+            background: var(--bg-card-subtle);
+        }
+
+        .accordion-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .accordion-chevron {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: var(--text-secondary);
+            transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: rotate(0deg);
+        }
+
+        .accordion-section.collapsed .accordion-chevron {
+            transform: rotate(-90deg);
+        }
+
+        .accordion-title-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            min-width: 0;
+        }
+
+        .accordion-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .accordion-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .accordion-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .accordion-body {
+            padding: 1.3rem 1.4rem 1.4rem 1.4rem;
+            border-top: 1px solid var(--border-card);
+            background: transparent;
+        }
+
+        .accordion-section.collapsed .accordion-body {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .accordion-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .accordion-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .category-nav-btn {
+                padding: 0.5rem 0.85rem;
+                font-size: 0.82rem;
+            }
+        }
     </style>
     {{if .Branding.HasCustomConsoleStyle}}
     <style id="custom-theme-vars">
@@ -1416,13 +1698,13 @@
                 </button>
 
                 <!-- 2. Identity Providers -->
-                <button type="button" class="nav-item" id="nav-tab-upstream" onclick="switchNavTab(this, 'tab-upstream', 'Identity &amp; OTP Providers', 'Select and activate upstream SAML 2.0 IdPs and one or more OTP verification methods (Authenticator App &amp; Email OTP).')">
+                <button type="button" class="nav-item" id="nav-tab-upstream" onclick="switchNavTab(this, 'tab-upstream', 'Identity Providers', 'Configure upstream SAML 2.0 Identity Providers, SSO endpoints, and federation certificates.')">
                     <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><line x1="15" y1="8" x2="17" y2="8"/><line x1="15" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
                     <span>Identity Providers</span>
                 </button>
 
                 <!-- 3. Service Providers -->
-                <button type="button" class="nav-item" onclick="switchNavTab(this, 'tab-downstream', 'Service Providers', 'Configure downstream Service Providers including Schneider Electric EcoStruxure IT Advisor.')">
+                <button type="button" class="nav-item" onclick="switchNavTab(this, 'tab-downstream', 'Service Providers', 'Configure downstream Service Providers, network endpoints, and OTP/MFA verification methods.')">
                     <svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="22.01"/><line x1="15" y1="22" x2="15" y2="22.01"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/><line x1="9" y1="18" x2="9" y2="18.01"/><line x1="15" y1="18" x2="15" y2="18.01"/></svg>
                     <span>Service Providers</span>
                 </button>
@@ -1473,7 +1755,7 @@
                     <span class="status-dot"></span>
                     <span>Gateway Online</span>
                 </div>
-                <span>v1.2.0</span>
+                <span>v1.2.1</span>
             </div>
         </div>
     </aside>
@@ -1637,19 +1919,27 @@
 
         <!-- ----------------- MAIN CONTENT BODY ----------------- -->
         <main class="page-body">
-            <!-- Flash Messages -->
-            {{if .SuccessMessage}}
-            <div class="flash-alert alert-success">
-                <span>✅ {{.SuccessMessage}}</span>
-                <button type="button" class="btn btn-sm btn-secondary" onclick="this.parentElement.remove()">✕</button>
+            <!-- Top-Right Floating Toast Notification Container -->
+            <div id="toastContainer" class="toast-container" aria-live="polite">
+                {{if .SuccessMessage}}
+                <div class="toast-alert toast-success" role="alert">
+                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                        <span style="font-size: 1.15rem; line-height: 1;">✅</span>
+                        <span style="color: #f1f5f9; font-weight: 500;">{{.SuccessMessage}}</span>
+                    </div>
+                    <button type="button" class="toast-close-btn" onclick="dismissToast(this.parentElement)" aria-label="Close notification">✕</button>
+                </div>
+                {{end}}
+                {{if .ErrorMessage}}
+                <div class="toast-alert toast-danger" role="alert">
+                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                        <span style="font-size: 1.15rem; line-height: 1;">⚠️</span>
+                        <span style="color: #f1f5f9; font-weight: 500;">{{.ErrorMessage}}</span>
+                    </div>
+                    <button type="button" class="toast-close-btn" onclick="dismissToast(this.parentElement)" aria-label="Close notification">✕</button>
+                </div>
+                {{end}}
             </div>
-            {{end}}
-            {{if .ErrorMessage}}
-            <div class="flash-alert alert-danger">
-                <span>⚠️ {{.ErrorMessage}}</span>
-                <button type="button" class="btn btn-sm btn-secondary" onclick="this.parentElement.remove()">✕</button>
-            </div>
-            {{end}}
 
             <!-- Form Wrapper for Config Persistence -->
             <form id="settingsForm" method="POST" action="/admin/settings">
@@ -1714,199 +2004,656 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: IDENTITY PROVIDERS (Upstream SAML IdP + Multi-OTP Providers including Email OTP) -->
+                <!-- TAB 2: IDENTITY PROVIDERS -->
                 <div id="tab-upstream" class="tab-content-pane">
-                    <div class="card" style="margin-bottom: 1.5rem;">
-                        <div class="card-header">
-                            <h2>🪪 Upstream Identity Provider (SAML 2.0 IdP)</h2>
-                            <div class="preset-bar">
-                                <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Quick Autofill:</span>
-                                <button type="button" class="preset-btn" onclick="applyPreset('simulator')">💻 Reset Simulator URLs</button>
-                                <button type="button" class="preset-btn" onclick="applyPreset('entra')">☁️ Fill Entra Tenant ID</button>
-                                <button type="button" class="preset-btn" onclick="applyPreset('keycloak')">🗝️ Fill Keycloak Realm</button>
+                    <!-- Category Navigation (Level 2) -->
+                    <div class="category-nav-wrapper">
+                        <div class="category-nav" role="tablist" aria-label="Identity Providers Categories">
+                            <button type="button" class="category-nav-btn active" data-cat-target="idp-cat-general" onclick="switchCategoryTab(this, 'idp-cat-general', 'tab-upstream')">
+                                <span class="cat-icon">⚙️</span>
+                                <span>General Configuration</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="idp-cat-saml" onclick="switchCategoryTab(this, 'idp-cat-saml', 'tab-upstream')">
+                                <span class="cat-icon">🔗</span>
+                                <span>SAML Configuration</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="idp-cat-certs" onclick="switchCategoryTab(this, 'idp-cat-certs', 'tab-upstream')">
+                                <span class="cat-icon">📜</span>
+                                <span>Certificates &amp; Security</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="idp-cat-advanced" onclick="switchCategoryTab(this, 'idp-cat-advanced', 'tab-upstream')">
+                                <span class="cat-icon">🚀</span>
+                                <span>Advanced Settings</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category A: General Configuration -->
+                    <div id="idp-cat-general" class="category-pane active">
+                        <div class="accordion-section" id="sec-idp-profiles">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-profiles')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🪪 Upstream Identity Provider Profiles</h3>
+                                        <p class="accordion-desc">Select and activate upstream SAML 2.0 Identity Providers</p>
+                                    </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <div class="preset-bar" style="margin: 0;">
+                                        <span style="font-size: 0.78rem; color: var(--text-muted); align-self: center;">Autofill:</span>
+                                        <button type="button" class="preset-btn" onclick="applyPreset('simulator')">💻 Simulator</button>
+                                        <button type="button" class="preset-btn" onclick="applyPreset('entra')">☁️ Entra ID</button>
+                                        <button type="button" class="preset-btn" onclick="applyPreset('keycloak')">🗝️ Keycloak</button>
+                                    </div>
+                                    <span class="badge badge-info" id="idpSummaryBadge">Upstream SAML</span>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <p class="help-text" style="margin-bottom: 1rem;">
+                                    Activate one or <strong>multiple Upstream SAML 2.0 Identity Providers</strong> simultaneously. When multiple providers are active, users see a clean <strong>Select a sign-in method</strong> list on the front-end login page. Click any card below to edit its endpoint profile.
+                                </p>
+
+                                <input type="hidden" name="idp_providers_submitted" value="1">
+                                <input type="hidden" id="active_idp" name="active_idp" value="{{.ActiveIdP}}">
+                                <input type="hidden" id="idp_profiles_json" name="idp_profiles_json" value="">
+
+                                <div class="idp-selector-grid" role="group" aria-label="Upstream SAML Identity Providers">
+                                    <div class="idp-option-card {{if .SimulatorEnabled}}active{{end}} {{if eq .ActiveIdP "simulator"}}editing{{end}}" data-idp-choice="simulator" onclick="selectUpstreamIdP('simulator')">
+                                        <div class="idp-option-header">
+                                            <span>💻 Local Simulator</span>
+                                            <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Local Simulator">
+                                                <input type="checkbox" id="idp_enable_simulator" name="enabled_idps[]" value="simulator" {{if .SimulatorEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
+                                                <span class="toggle-switch"></span>
+                                            </label>
+                                        </div>
+                                        <div class="idp-option-desc">Built-in mock corporate IdP for local development and QA verification.</div>
+                                        <div class="idp-option-footer">
+                                            <span data-idp-editing-label="simulator">{{if eq .ActiveIdP "simulator"}}Editing profile{{else}}Click to edit{{end}}</span>
+                                            <span class="badge {{if .SimulatorEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="simulator">{{if .SimulatorEnabled}}Active{{else}}Standby{{end}}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="idp-option-card {{if .EntraEnabled}}active{{end}} {{if eq .ActiveIdP "entra"}}editing{{end}}" data-idp-choice="entra" onclick="selectUpstreamIdP('entra')">
+                                        <div class="idp-option-header">
+                                            <span>☁️ Microsoft Entra ID</span>
+                                            <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Microsoft Entra ID">
+                                                <input type="checkbox" id="idp_enable_entra" name="enabled_idps[]" value="entra" {{if .EntraEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
+                                                <span class="toggle-switch"></span>
+                                            </label>
+                                        </div>
+                                        <div class="idp-option-desc">Enterprise SSO federation with Azure AD / Microsoft Entra SAML 2.0.</div>
+                                        <div class="idp-option-footer">
+                                            <span data-idp-editing-label="entra">{{if eq .ActiveIdP "entra"}}Editing profile{{else}}Click to edit{{end}}</span>
+                                            <span class="badge {{if .EntraEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="entra">{{if .EntraEnabled}}Active{{else}}Standby{{end}}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="idp-option-card {{if .KeycloakEnabled}}active{{end}} {{if eq .ActiveIdP "keycloak"}}editing{{end}}" data-idp-choice="keycloak" onclick="selectUpstreamIdP('keycloak')">
+                                        <div class="idp-option-header">
+                                            <span>🗝️ Keycloak</span>
+                                            <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Keycloak">
+                                                <input type="checkbox" id="idp_enable_keycloak" name="enabled_idps[]" value="keycloak" {{if .KeycloakEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
+                                                <span class="toggle-switch"></span>
+                                            </label>
+                                        </div>
+                                        <div class="idp-option-desc">Self-hosted or managed Keycloak realm SAML identity broker.</div>
+                                        <div class="idp-option-footer">
+                                            <span data-idp-editing-label="keycloak">{{if eq .ActiveIdP "keycloak"}}Editing profile{{else}}Click to edit{{end}}</span>
+                                            <span class="badge {{if .KeycloakEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="keycloak">{{if .KeycloakEnabled}}Active{{else}}Standby{{end}}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="idp-option-card {{if .CustomIdPEnabled}}active{{end}} {{if eq .ActiveIdP "custom"}}editing{{end}}" data-idp-choice="custom" onclick="selectUpstreamIdP('custom')">
+                                        <div class="idp-option-header">
+                                            <span>🧩 Custom SAML 2.0 IdP</span>
+                                            <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Custom SAML 2.0 IdP">
+                                                <input type="checkbox" id="idp_enable_custom" name="enabled_idps[]" value="custom" {{if .CustomIdPEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
+                                                <span class="toggle-switch"></span>
+                                            </label>
+                                        </div>
+                                        <div class="idp-option-desc">Okta, Ping Identity, ADFS, or any standards-compliant SAML 2.0 IdP.</div>
+                                        <div class="idp-option-footer">
+                                            <span data-idp-editing-label="custom">{{if eq .ActiveIdP "custom"}}Editing profile{{else}}Click to edit{{end}}</span>
+                                            <span class="badge {{if .CustomIdPEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="custom">{{if .CustomIdPEnabled}}Active{{else}}Standby{{end}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; padding: 0.55rem 0.85rem; background: var(--bg-card-subtle); border: 1px solid var(--border-main); border-radius: 8px; font-size: 0.83rem;">
+                                    <span>Editing Profile: <strong id="editingIdPName">{{.ActiveIdP}}</strong></span>
+                                    <span style="color: var(--text-muted); font-size: 0.78rem;">Configure SAML endpoints in the <strong>SAML Configuration</strong> category tab.</span>
+                                </div>
                             </div>
                         </div>
 
-                        <p class="help-text" style="margin-bottom: 1rem;">
-                            Activate one or <strong>multiple Upstream SAML 2.0 Identity Providers</strong> simultaneously. When multiple providers are active, users see a clean <strong>Select a sign-in method</strong> list on the front-end login page. Click any card below to edit its endpoint profile.
-                        </p>
-
-                        <input type="hidden" name="idp_providers_submitted" value="1">
-                        <input type="hidden" id="active_idp" name="active_idp" value="{{.ActiveIdP}}">
-                        <input type="hidden" id="idp_profiles_json" name="idp_profiles_json" value="">
-
-                        <div class="idp-selector-grid" role="group" aria-label="Upstream SAML Identity Providers">
-                            <div class="idp-option-card {{if .SimulatorEnabled}}active{{end}} {{if eq .ActiveIdP "simulator"}}editing{{end}}" data-idp-choice="simulator" onclick="selectUpstreamIdP('simulator')">
-                                <div class="idp-option-header">
-                                    <span>💻 Local Simulator</span>
-                                    <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Local Simulator">
-                                        <input type="checkbox" id="idp_enable_simulator" name="enabled_idps[]" value="simulator" {{if .SimulatorEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
-                                        <span class="toggle-switch"></span>
-                                    </label>
-                                </div>
-                                <div class="idp-option-desc">Built-in mock corporate IdP for local development and QA verification.</div>
-                                <div class="idp-option-footer">
-                                    <span data-idp-editing-label="simulator">{{if eq .ActiveIdP "simulator"}}Editing profile{{else}}Click to edit{{end}}</span>
-                                    <span class="badge {{if .SimulatorEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="simulator">{{if .SimulatorEnabled}}Active{{else}}Standby{{end}}</span>
+                        <div class="accordion-section collapsed" id="sec-idp-overview">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-overview')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">ℹ️ Provider Type &amp; Multi-Sign-In Overview</h3>
+                                        <p class="accordion-desc">Routing and prompt behavior when multiple upstream providers are active</p>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="idp-option-card {{if .EntraEnabled}}active{{end}} {{if eq .ActiveIdP "entra"}}editing{{end}}" data-idp-choice="entra" onclick="selectUpstreamIdP('entra')">
-                                <div class="idp-option-header">
-                                    <span>☁️ Microsoft Entra ID</span>
-                                    <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Microsoft Entra ID">
-                                        <input type="checkbox" id="idp_enable_entra" name="enabled_idps[]" value="entra" {{if .EntraEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
-                                        <span class="toggle-switch"></span>
-                                    </label>
+                            <div class="accordion-body">
+                                <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary);">
+                                    <p style="margin-bottom: 0.6rem;">
+                                        <strong>Single Active Provider:</strong> When only one Upstream Identity Provider is active (e.g. Microsoft Entra ID), SAMLGuard directly forwards sign-in requests to that provider without intermediate prompts.
+                                    </p>
+                                    <p style="margin-bottom: 0;">
+                                        <strong>Multiple Active Providers:</strong> When two or more providers are activated, end-users are presented with a branded "Select a sign-in method" screen displaying all active providers with company logos and descriptions.
+                                    </p>
                                 </div>
-                                <div class="idp-option-desc">Enterprise SSO federation with Azure AD / Microsoft Entra SAML 2.0.</div>
-                                <div class="idp-option-footer">
-                                    <span data-idp-editing-label="entra">{{if eq .ActiveIdP "entra"}}Editing profile{{else}}Click to edit{{end}}</span>
-                                    <span class="badge {{if .EntraEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="entra">{{if .EntraEnabled}}Active{{else}}Standby{{end}}</span>
-                                </div>
-                            </div>
-
-                            <div class="idp-option-card {{if .KeycloakEnabled}}active{{end}} {{if eq .ActiveIdP "keycloak"}}editing{{end}}" data-idp-choice="keycloak" onclick="selectUpstreamIdP('keycloak')">
-                                <div class="idp-option-header">
-                                    <span>🗝️ Keycloak</span>
-                                    <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Keycloak">
-                                        <input type="checkbox" id="idp_enable_keycloak" name="enabled_idps[]" value="keycloak" {{if .KeycloakEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
-                                        <span class="toggle-switch"></span>
-                                    </label>
-                                </div>
-                                <div class="idp-option-desc">Self-hosted or managed Keycloak realm SAML identity broker.</div>
-                                <div class="idp-option-footer">
-                                    <span data-idp-editing-label="keycloak">{{if eq .ActiveIdP "keycloak"}}Editing profile{{else}}Click to edit{{end}}</span>
-                                    <span class="badge {{if .KeycloakEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="keycloak">{{if .KeycloakEnabled}}Active{{else}}Standby{{end}}</span>
-                                </div>
-                            </div>
-
-                            <div class="idp-option-card {{if .CustomIdPEnabled}}active{{end}} {{if eq .ActiveIdP "custom"}}editing{{end}}" data-idp-choice="custom" onclick="selectUpstreamIdP('custom')">
-                                <div class="idp-option-header">
-                                    <span>🧩 Custom SAML 2.0 IdP</span>
-                                    <label class="toggle-label" style="margin: 0;" onclick="event.stopPropagation()" title="Activate Custom SAML 2.0 IdP">
-                                        <input type="checkbox" id="idp_enable_custom" name="enabled_idps[]" value="custom" {{if .CustomIdPEnabled}}checked{{end}} onchange="onIdPToggleChange(this)">
-                                        <span class="toggle-switch"></span>
-                                    </label>
-                                </div>
-                                <div class="idp-option-desc">Okta, Ping Identity, ADFS, or any standards-compliant SAML 2.0 IdP.</div>
-                                <div class="idp-option-footer">
-                                    <span data-idp-editing-label="custom">{{if eq .ActiveIdP "custom"}}Editing profile{{else}}Click to edit{{end}}</span>
-                                    <span class="badge {{if .CustomIdPEnabled}}badge-success{{else}}badge-info{{end}}" data-idp-badge="custom">{{if .CustomIdPEnabled}}Active{{else}}Standby{{end}}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; padding: 0.55rem 0.85rem; background: var(--bg-card-subtle); border: 1px solid var(--border-main); border-radius: 8px; font-size: 0.83rem;">
-                            <span>Editing Profile: <strong id="editingIdPName">{{.ActiveIdP}}</strong></span>
-                            <span class="badge badge-info" id="idpSummaryBadge">Upstream SAML</span>
-                        </div>
-
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="idp_entity_id">Upstream IdP Entity ID (Issuer)</label>
-                                <input type="text" id="idp_entity_id" name="idp_entity_id" value="{{.Settings.IdPEntityID}}" placeholder="e.g. https://sts.windows.net/{tenant-id}/">
-                                <p class="help-text">Unique identifier of the selected Identity Provider profile.</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="idp_sso_url">Upstream IdP Single Sign-On (SSO) URL</label>
-                                <input type="text" id="idp_sso_url" name="idp_sso_url" value="{{.Settings.IdPSSOURL}}" placeholder="e.g. https://login.microsoftonline.com/{tenant-id}/saml2">
-                                <p class="help-text">Endpoint where SAMLGuard redirects users when this provider is chosen.</p>
-                            </div>
-                        </div>
-
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="idp_metadata_url">Upstream Federation Metadata URL</label>
-                                <input type="text" id="idp_metadata_url" name="idp_metadata_url" value="{{.Settings.IdPMetadataURL}}" placeholder="e.g. https://login.microsoftonline.com/{tenant-id}/federationmetadata/2007-06/federationmetadata.xml">
-                                <p class="help-text">Optional URL to auto-sync IdP public keys and signing certificates.</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="idp_cert_file">Upstream IdP Certificate File Path</label>
-                                <input type="text" id="idp_cert_file" name="idp_cert_file" value="{{.Settings.IdPCertFile}}" placeholder="./cert/saml-signing.crt">
-                                <p class="help-text">Path to public certificate used to verify inbound upstream SAML assertions.</p>
-                            </div>
-                        </div>
-
-                        <!-- Entra ID Cheatsheet Guide Box -->
-                        <div class="guide-box">
-                            <h3>☁️ Microsoft Entra ID (Azure AD) Setup Cheatsheet</h3>
-                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                                When configuring your <strong>Enterprise Application</strong> in Microsoft Entra ID, enter these values into <em>Set up Single Sign-On with SAML</em>:
-                            </p>
-                            <div class="guide-item">
-                                <span style="width: 200px;">Identifier (Entity ID):</span>
-                                <span class="val" id="entraEntityID">{{.Settings.EntityID}}</span>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="copyToClipboard('entraEntityID')">Copy</button>
-                            </div>
-                            <div class="guide-item">
-                                <span style="width: 200px;">Reply URL (ACS URL):</span>
-                                <span class="val" id="entraACSURL">{{.Settings.EntityID}}/saml/acs</span>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="copyToClipboard('entraACSURL')">Copy</button>
-                            </div>
-                            <div class="guide-item">
-                                <span style="width: 200px;">Sign-on URL:</span>
-                                <span class="val" id="entraSignonURL">{{.Settings.EntityID}}/login</span>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="copyToClipboard('entraSignonURL')">Copy</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- OTP & Multi-Factor Verification Providers Card -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>🔐 OTP &amp; MFA Verification Providers</h2>
-                            <span class="badge badge-info" id="otpSummaryBadge">Multi-OTP Supported</span>
+                    <!-- Category B: SAML Configuration -->
+                    <div id="idp-cat-saml" class="category-pane">
+                        <div class="accordion-section" id="sec-idp-endpoints">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-endpoints')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🔗 Upstream SAML 2.0 Endpoints</h3>
+                                        <p class="accordion-desc">Entity ID, SSO URL, and federation metadata for the selected profile</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="idp_entity_id">Upstream IdP Entity ID (Issuer)</label>
+                                        <input type="text" id="idp_entity_id" name="idp_entity_id" value="{{.Settings.IdPEntityID}}" placeholder="e.g. https://sts.windows.net/{tenant-id}/">
+                                        <p class="help-text">Unique identifier of the selected Identity Provider profile.</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="idp_sso_url">Upstream IdP Single Sign-On (SSO) URL</label>
+                                        <input type="text" id="idp_sso_url" name="idp_sso_url" value="{{.Settings.IdPSSOURL}}" placeholder="e.g. https://login.microsoftonline.com/{tenant-id}/saml2">
+                                        <p class="help-text">Endpoint where SAMLGuard redirects users when this provider is chosen.</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="idp_metadata_url">Upstream Federation Metadata URL</label>
+                                        <input type="text" id="idp_metadata_url" name="idp_metadata_url" value="{{.Settings.IdPMetadataURL}}" placeholder="e.g. https://login.microsoftonline.com/{tenant-id}/federationmetadata/2007-06/federationmetadata.xml">
+                                        <p class="help-text">Optional URL to auto-sync IdP public keys and signing certificates.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <p class="help-text" style="margin-bottom: 1.15rem;">
-                            Activate one or <strong>multiple OTP verification methods simultaneously</strong> (for example both Authenticator App and Email OTP). All settings for each active OTP provider are managed directly below, and customers can switch between any active methods at sign-in.
-                        </p>
+                        <div class="accordion-section collapsed" id="sec-idp-binding">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-binding')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🛡️ SAML Protocol Bindings &amp; Verification</h3>
+                                        <p class="accordion-desc">Protocol binding standards and token verification behavior</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary);">
+                                    <p style="margin-bottom: 0.5rem;">
+                                        <strong>Inbound Binding:</strong> SAMLGuard supports both <code>HTTP-POST</code> and <code>HTTP-Redirect</code> bindings for inbound authentication requests and assertions.
+                                    </p>
+                                    <p style="margin-bottom: 0.5rem;">
+                                        <strong>Replay Attack Defense:</strong> All inbound SAML assertion IDs are cached in memory and in the persistent token store to prevent assertion replay attacks.
+                                    </p>
+                                    <p style="margin-bottom: 0;">
+                                        <strong>Clock Skew Tolerance:</strong> A ±3 minute leeway is automatically applied when validating assertion timestamps (NotBefore and NotOnOrAfter).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Category C: Certificates & Security -->
+                    <div id="idp-cat-certs" class="category-pane">
+                        <div class="accordion-section" id="sec-idp-signing-cert">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-signing-cert')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📜 Inbound Assertion Signing Certificate</h3>
+                                        <p class="accordion-desc">Public X.509 certificate used to cryptographically verify inbound upstream assertions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="form-group" style="max-width: 600px;">
+                                    <label for="idp_cert_file">Upstream IdP Certificate File Path</label>
+                                    <input type="text" id="idp_cert_file" name="idp_cert_file" value="{{.Settings.IdPCertFile}}" placeholder="./cert/saml-signing.crt">
+                                    <p class="help-text">Local path or relative file path to the public X.509 certificate used to verify inbound upstream SAML assertions.</p>
+                                </div>
+                                <div style="margin-top: 1rem; padding: 0.85rem 1rem; background: var(--bg-card-subtle); border-radius: 8px; border: 1px solid var(--border-card); font-size: 0.83rem; color: var(--text-secondary);">
+                                    🔒 <strong>Security Verification:</strong> SAMLGuard strictly verifies XML digital signatures (RSA-SHA256) on all inbound assertions. Ensure the certificate matches the public key registered in the upstream Identity Provider.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category D: Advanced Settings -->
+                    <div id="idp-cat-advanced" class="category-pane">
+                        <div class="accordion-section" id="sec-idp-entra-cheatsheet">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-entra-cheatsheet')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">☁️ Microsoft Entra ID (Azure AD) Setup Cheatsheet</h3>
+                                        <p class="accordion-desc">Copyable values for Azure Enterprise Application SAML SSO configuration</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="guide-box" style="margin: 0;">
+                                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                        When configuring your <strong>Enterprise Application</strong> in Microsoft Entra ID, enter these values into <em>Set up Single Sign-On with SAML</em>:
+                                    </p>
+                                    <div class="guide-item">
+                                        <span style="width: 200px;">Identifier (Entity ID):</span>
+                                        <span class="val" id="entraEntityID">{{.Settings.EntityID}}</span>
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="copyToClipboard('entraEntityID')">Copy</button>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span style="width: 200px;">Reply URL (ACS URL):</span>
+                                        <span class="val" id="entraACSURL">{{.Settings.EntityID}}/saml/acs</span>
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="copyToClipboard('entraACSURL')">Copy</button>
+                                    </div>
+                                    <div class="guide-item">
+                                        <span style="width: 200px;">Sign-on URL:</span>
+                                        <span class="val" id="entraSignonURL">{{.Settings.EntityID}}/login</span>
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="copyToClipboard('entraSignonURL')">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-section collapsed" id="sec-idp-mfa-routing">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-idp-mfa-routing')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🔐 Multi-Factor Authentication (MFA) Integration</h3>
+                                        <p class="accordion-desc">Second-factor OTP verification policies and method configuration</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1rem; background: var(--bg-card-subtle); border-radius: 8px; border: 1px solid var(--border-card);">
+                                    <div>
+                                        <strong style="color: var(--text-primary); font-size: 0.9rem;">Multi-Factor Authentication (MFA) Methods</strong>
+                                        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
+                                            TOTP Authenticator Apps, Email OTP, and SMS Gateway profiles protect access to downstream Service Providers and are configured under Service Providers.
+                                        </p>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" onclick="switchNavTab(document.querySelector('[onclick*=\'tab-downstream\']'), 'tab-downstream', 'Service Providers', 'Configure downstream Service Providers, network endpoints, and OTP/MFA verification methods.'); switchSubnavTab('tab-downstream', 'sp-cat-mfa');">
+                                        🔐 Go to OTP &amp; MFA Settings →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: SERVICE PROVIDERS -->
+                <div id="tab-downstream" class="tab-content-pane">
+                    <!-- Category Navigation (Level 2) -->
+                    <div class="category-nav-wrapper">
+                        <div class="category-nav" role="tablist" aria-label="Service Providers Categories">
+                            <button type="button" class="category-nav-btn active" data-cat-target="sp-cat-general" onclick="switchCategoryTab(this, 'sp-cat-general', 'tab-downstream')">
+                                <span class="cat-icon">🏢</span>
+                                <span>General Configuration</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sp-cat-saml" onclick="switchCategoryTab(this, 'sp-cat-saml', 'tab-downstream')">
+                                <span class="cat-icon">🔗</span>
+                                <span>SAML Configuration</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sp-cat-network" onclick="switchCategoryTab(this, 'sp-cat-network', 'tab-downstream')">
+                                <span class="cat-icon">🌐</span>
+                                <span>Network &amp; Endpoints</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sp-cat-mfa" onclick="switchCategoryTab(this, 'sp-cat-mfa', 'tab-downstream')">
+                                <span class="cat-icon">🔐</span>
+                                <span>OTP &amp; MFA Verification</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sp-cat-advanced" onclick="switchCategoryTab(this, 'sp-cat-advanced', 'tab-downstream')">
+                                <span class="cat-icon">📘</span>
+                                <span>Advanced Settings</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category A: General Configuration -->
+                    <div id="sp-cat-general" class="category-pane active">
+                        <div class="accordion-section" id="sec-sp-ita-connection">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sp-ita-connection')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🏢 Downstream Service Provider (Schneider ITA)</h3>
+                                        <p class="accordion-desc">SAML connection parameters for Schneider Electric EcoStruxure IT Advisor</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="entity_id">SAMLGuard Gateway Entity ID</label>
+                                        <input type="text" id="entity_id" name="entity_id" value="{{.Settings.EntityID}}" required>
+                                        <p class="help-text">This gateway's entity identifier as presented to downstream SP and upstream IdP.</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="acs_url">Downstream ITA ACS Callback URL</label>
+                                        <input type="text" id="acs_url" name="acs_url" value="{{.Settings.ACSURL}}" placeholder="https://ita.example.com/api/current/authentication/saml2-callback" required>
+                                        <p class="help-text">Exact callback endpoint on Schneider ITA where the signed assertion is POSTed.</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="sso_url">Gateway Single Sign-On (SSO) URL</label>
+                                        <input type="text" id="sso_url" name="sso_url" value="{{.Settings.SSOURL}}" required>
+                                        <p class="help-text">Entry point where ITA sends AuthnRequests (e.g. https://samlguard.example.com:8443/login).</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="slo_url">Gateway Single Logout (SLO) URL</label>
+                                        <input type="text" id="slo_url" name="slo_url" value="{{.Settings.SLOURL}}" required>
+                                        <p class="help-text">Logout termination endpoint for SAML session invalidation.</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="allowed_audiences">Allowed SAML Audiences (Comma-Separated)</label>
+                                    <input type="text" id="allowed_audiences" name="allowed_audiences_str" value="{{.AllowedAudiencesStr}}" placeholder="https://ita.example.com, https://samlguard.example.com:8443">
+                                    <p class="help-text">Permitted SAML AudienceRestriction URIs accepted by the gateway and generated in assertions.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category B: SAML Configuration & Mappings -->
+                    <div id="sp-cat-saml" class="category-pane">
+                        <div class="accordion-section" id="sec-sp-group-mappings">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sp-group-mappings')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🗂️ Group &amp; Role Mappings</h3>
+                                        <p class="accordion-desc">Translate upstream IdP group and role claims to Schneider IT Advisor roles</p>
+                                    </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="addGroupMappingRow('', '')">+ Add Mapping</button>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <p class="help-text" style="margin-bottom: 1rem;">
+                                    Map claims extracted from the inbound SAML assertion to Schneider Electric IT Advisor authorization roles (Admin, Operator, Viewer).
+                                </p>
+                                <table class="table" id="groupMappingTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Upstream Group / Role Claim</th>
+                                            <th>Target Schneider ITA Role</th>
+                                            <th style="width: 80px;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{range $k, $v := .Settings.GroupMapping}}
+                                        <tr>
+                                            <td><input type="text" name="group_map_key[]" value="{{$k}}" placeholder="e.g. ita-admins" required></td>
+                                            <td>
+                                                <select name="group_map_val[]">
+                                                    <option value="Admin" {{if eq $v "Admin"}}selected{{end}}>Admin</option>
+                                                    <option value="Operator" {{if eq $v "Operator"}}selected{{end}}>Operator</option>
+                                                    <option value="Viewer" {{if eq $v "Viewer"}}selected{{end}}>Viewer</option>
+                                                </select>
+                                            </td>
+                                            <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+                                        </tr>
+                                        {{end}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category C: Network & Endpoints -->
+                    <div id="sp-cat-network" class="category-pane">
+                        <div class="accordion-section" id="sec-sp-net-interface">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sp-net-interface')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🌐 SAMLGuard Host Network Interface Selection</h3>
+                                        <p class="accordion-desc">Select active host network interface and IPv4 address for canonical endpoints</p>
+                                    </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <span id="netStatusPill" class="badge {{if .IsNetworkIPAvailable}}badge-success{{else}}badge-danger{{end}}">
+                                        {{if .IsNetworkIPAvailable}}● IP Active{{else}}⚠️ IP Missing{{end}}
+                                    </span>
+                                    <span id="netInterfacePill" class="badge badge-info" title="Selected Network Interface">
+                                        🔌 {{if .SelectedNetworkInterface}}{{.SelectedNetworkInterface}}{{else}}None{{end}}
+                                    </span>
+                                    <span id="netModeBadge" class="badge {{if eq .PublicURLMode "manual"}}badge-warning{{else}}badge-success{{end}}">
+                                        {{if eq .PublicURLMode "manual"}}⚡ Manual Override{{else}}🔌 Interface Bound{{end}}
+                                    </span>
+                                    <span id="netTLSSANPill" class="badge {{if .TLSCertValidForCurrentIP}}badge-success{{else}}badge-warning{{end}}" title="TLS Certificate SAN match for selected host IP">
+                                        {{if .TLSCertValidForCurrentIP}}🔒 TLS SAN Valid{{else}}⚠️ TLS SAN Mismatch{{end}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <!-- Missing / Disconnected IP Alert Banner -->
+                                <div id="netMissingIPBanner" class="flash-alert alert-warning" style="{{if .IsNetworkIPAvailable}}display: none;{{end}} margin-bottom: 1.25rem; border-left: 4px solid var(--accent-warning, #f59e0b);">
+                                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                                        <span style="font-size: 1.5rem; line-height: 1;">⚠️</span>
+                                        <div>
+                                            <strong style="color: var(--text-primary); font-size: 0.95rem;">Configured Host Network Interface / IP Not Detected</strong>
+                                            <p style="margin: 0.25rem 0 0.5rem 0; font-size: 0.85rem; color: var(--text-secondary);">
+                                                The configured IP <code id="netMissingIPVal" style="font-weight: 700;">{{.SelectedNetworkIP}}</code> is not currently assigned to any active interface on this machine.
+                                                SAMLGuard will not silently switch interfaces. Please select an active interface below and click <strong>Save Configuration</strong>.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Network Interface Selection Section -->
+                                <div style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-card); margin-bottom: 1.25rem;">
+                                    <div class="form-group" style="margin-bottom: 1rem;">
+                                        <label for="netInterfaceSelect" style="font-weight: 600;">Network Interface &amp; IPv4 Address</label>
+                                        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                                            <select id="netInterfaceSelect" style="flex: 1; min-width: 250px;" onchange="onNetworkInterfaceSelectChange()">
+                                                {{if .AvailableInterfaces}}
+                                                {{range .AvailableInterfaces}}
+                                                <option value="{{.Name}}|{{.PrimaryIP}}" data-iface="{{.Name}}" data-ip="{{.PrimaryIP}}" {{if and (eq $.SelectedNetworkInterface .Name) (eq $.SelectedNetworkIP .PrimaryIP)}}selected{{end}}>
+                                                    {{.DisplayName}} – {{.PrimaryIP}} {{if .IsVirtual}}[virtual]{{end}}
+                                                </option>
+                                                {{end}}
+                                                {{else}}
+                                                <option value="" disabled selected>-- No physical interfaces detected --</option>
+                                                {{end}}
+                                            </select>
+                                            <button type="button" class="btn btn-secondary" onclick="refreshNetworkInterfaces()" style="white-space: nowrap;">
+                                                🔄 Refresh Interfaces
+                                            </button>
+                                            <button type="button" class="btn btn-primary" onclick="saveSelectedNetworkInterface()" style="white-space: nowrap;">
+                                                💾 Save Configuration
+                                            </button>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 0.6rem; margin-top: 0.65rem;">
+                                            <input type="checkbox" id="netIncludeVirtual" onchange="refreshNetworkInterfaces()" style="position: static; opacity: 1; width: 16px; height: 16px; pointer-events: auto; accent-color: var(--brand-green, #3dcd58); cursor: pointer; margin: 0;">
+                                            <label for="netIncludeVirtual" style="font-size: 0.85rem; color: var(--text-secondary); margin: 0; cursor: pointer; user-select: none;">
+                                                Show virtual &amp; container interfaces (Docker, WSL, Hyper-V)
+                                            </label>
+                                        </div>
+                                        <div id="netSaveMsg" style="margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Canonical Endpoints -->
+                        <div class="accordion-section" id="sec-sp-net-endpoints">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sp-net-endpoints')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📍 Canonical Endpoint URIs</h3>
+                                        <p class="accordion-desc">Public endpoint addresses calculated from active host network binding</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label>Selected SAMLGuard IP</label>
+                                        <div class="input-group">
+                                            <input type="text" id="netSelectedIP" value="{{.SelectedNetworkIP}}" readonly style="background: var(--bg-card-subtle); font-family: monospace; font-weight: 600;">
+                                            <button type="button" class="btn btn-secondary" onclick="copyInput('netSelectedIP')">Copy</button>
+                                        </div>
+                                        <p class="help-text">Active IPv4 host address explicitly selected by the administrator.</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Canonical Public Base URL</label>
+                                        <div class="input-group">
+                                            <input type="text" id="netPublicBaseURL" value="{{.PublicBaseURL}}" readonly style="background: var(--bg-card-subtle); font-family: monospace; font-weight: 600;">
+                                            <button type="button" class="btn btn-secondary" onclick="copyInput('netPublicBaseURL')">Copy</button>
+                                        </div>
+                                        <p class="help-text">Root URL used for all public-facing authentication endpoints.</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label>SAMLGuard Gateway ACS URL (Inbound from Upstream IdP)</label>
+                                        <div class="input-group">
+                                            <input type="text" id="netGatewayACSURL" value="{{.GatewayACSURL}}" readonly style="background: var(--bg-card-subtle); font-family: monospace;">
+                                            <button type="button" class="btn btn-secondary" onclick="copyInput('netGatewayACSURL')">Copy</button>
+                                        </div>
+                                        <p class="help-text">Where Microsoft Entra / Keycloak posts SAML assertions back to SAMLGuard (<code>/saml/acs</code>).</p>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>SAMLGuard Metadata URL</label>
+                                        <div class="input-group">
+                                            <input type="text" id="netMetadataURL" value="{{.PublicBaseURL}}/metadata" readonly style="background: var(--bg-card-subtle); font-family: monospace;">
+                                            <button type="button" class="btn btn-secondary" onclick="copyInput('netMetadataURL')">Copy</button>
+                                        </div>
+                                        <p class="help-text">Public SAML 2.0 EntityDescriptor metadata endpoint.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Public URL Override Section -->
+                        <div class="accordion-section {{if ne .PublicURLMode "manual"}}collapsed{{end}}" id="sec-sp-net-override">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sp-net-override')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">⚡ Manual Public URL Override (Reverse Proxy / FQDN)</h3>
+                                        <p class="accordion-desc">Override host IP with a static DNS domain name or reverse proxy URL</p>
+                                    </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <label class="toggle-label" style="margin: 0;">
+                                        <input type="checkbox" id="netManualOverrideToggle" onchange="toggleManualOverride(this.checked)" {{if eq .PublicURLMode "manual"}}checked{{end}}>
+                                        <span class="toggle-switch"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div id="netManualOverrideControls" style="{{if ne .PublicURLMode "manual"}}display: none;{{end}}">
+                                    <div class="grid-2" style="align-items: flex-end;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label for="netManualPublicURL">Custom Public URL (HTTPS / FQDN)</label>
+                                            <input type="url" id="netManualPublicURL" placeholder="https://samlguard.company.com:8443" value="{{.Settings.ManualPublicURL}}">
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button type="button" class="btn btn-primary" onclick="saveManualPublicURL(true)">Save Override</button>
+                                            <button type="button" class="btn btn-secondary" onclick="saveManualPublicURL(false)">Revert to Selected Interface</button>
+                                        </div>
+                                    </div>
+                                    <div id="netOverrideMsg" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category D: OTP & MFA Verification Providers -->
+                    <div id="sp-cat-mfa" class="category-pane">
                         <input type="hidden" name="mfa_providers_submitted" value="1">
 
-                        <div class="form-group" style="padding: 0.9rem 1rem; border-radius: 10px; background: var(--bg-card-subtle); border: 1px solid var(--border-card); margin-bottom: 1.25rem;">
-                            <label style="margin-bottom: 0.45rem;">Customer Verification Flow on Sign-In</label>
-                            <div style="display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center;">
-                                <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
-                                    <input type="radio" id="default_provider_select" name="mfa_default_provider" value="select" {{if eq .Settings.MFADefaultProvider "select"}}checked{{end}} onchange="syncOTPProviderState()">
-                                    <span>📋 Show Method Selection List First</span>
-                                </label>
-                                <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
-                                    <input type="radio" id="default_provider_totp" name="mfa_default_provider" value="totp" {{if eq .Settings.MFADefaultProvider "totp"}}checked{{end}} onchange="syncOTPProviderState()">
-                                    <span>📱 Authenticator App (TOTP)</span>
-                                </label>
-                                <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
-                                    <input type="radio" id="default_provider_email" name="mfa_default_provider" value="email" {{if eq .Settings.MFADefaultProvider "email"}}checked{{end}} onchange="syncOTPProviderState()">
-                                    <span>📧 Email OTP</span>
-                                </label>
-                                <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
-                                    <input type="radio" id="default_provider_sms" name="mfa_default_provider" value="sms" {{if eq .Settings.MFADefaultProvider "sms"}}checked{{end}} onchange="syncOTPProviderState()">
-                                    <span>💬 SMS OTP</span>
-                                </label>
+                        <!-- Customer Verification Flow -->
+                        <div class="accordion-section" id="sec-otp-flow">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-otp-flow')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📋 Customer Verification Flow on Sign-In</h3>
+                                        <p class="accordion-desc">Configure landing method and selection prompt for customers</p>
+                                    </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <span class="badge badge-info" id="otpSummaryBadge">Multi-OTP Supported</span>
+                                </div>
                             </div>
-                            <p class="help-text">When multiple OTP methods are active, choose whether customers see the vertical "Select a method to verify your identity" list first or land directly on a default method (with a Back button to switch).</p>
+                            <div class="accordion-body">
+                                <p class="help-text" style="margin-bottom: 1rem;">
+                                    Activate one or <strong>multiple OTP verification methods simultaneously</strong> (for example both Authenticator App and Email OTP). All settings for each active OTP provider are managed directly below, and customers can switch between any active methods at sign-in.
+                                </p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center; padding: 0.9rem 1rem; border-radius: 8px; background: var(--bg-card-subtle); border: 1px solid var(--border-card);">
+                                    <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
+                                        <input type="radio" id="default_provider_select" name="mfa_default_provider" value="select" {{if eq .Settings.MFADefaultProvider "select"}}checked{{end}} onchange="syncOTPProviderState()">
+                                        <span>📋 Show Method Selection List First</span>
+                                    </label>
+                                    <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
+                                        <input type="radio" id="default_provider_totp" name="mfa_default_provider" value="totp" {{if eq .Settings.MFADefaultProvider "totp"}}checked{{end}} onchange="syncOTPProviderState()">
+                                        <span>📱 Authenticator App (TOTP)</span>
+                                    </label>
+                                    <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
+                                        <input type="radio" id="default_provider_email" name="mfa_default_provider" value="email" {{if eq .Settings.MFADefaultProvider "email"}}checked{{end}} onchange="syncOTPProviderState()">
+                                        <span>📧 Email OTP</span>
+                                    </label>
+                                    <label style="font-weight: normal; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; margin-bottom: 0;">
+                                        <input type="radio" id="default_provider_sms" name="mfa_default_provider" value="sms" {{if eq .Settings.MFADefaultProvider "sms"}}checked{{end}} onchange="syncOTPProviderState()">
+                                        <span>💬 SMS OTP</span>
+                                    </label>
+                                </div>
+                                <p class="help-text" style="margin-top: 0.5rem;">When multiple OTP methods are active, choose whether customers see the vertical "Select a method to verify your identity" list first or land directly on a default method (with a Back button to switch).</p>
+                            </div>
                         </div>
 
-                        <div class="grid-2">
-                            <!-- Authenticator App (TOTP) Provider Card -->
-                            <div class="otp-provider-card {{if .TotpEnabled}}active{{else}}inactive{{end}}" id="card-otp-totp">
-                                <div class="otp-provider-head">
-                                    <div>
-                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <h3 style="margin: 0; font-size: 1rem;">📱 Authenticator App (TOTP)</h3>
-                                            <span class="badge {{if .TotpEnabled}}badge-success{{else}}badge-warning{{end}}" id="badge-otp-totp">{{if .TotpEnabled}}Active{{else}}Disabled{{end}}</span>
-                                        </div>
-                                        <p class="help-text" style="margin-top: 0.25rem;">RFC 6238 time-based 6-digit codes via Microsoft / Google Authenticator.</p>
+                        <!-- Authenticator App (TOTP) -->
+                        <div class="accordion-section otp-provider-card {{if .TotpEnabled}}active{{else}}inactive{{end}} {{if not .TotpEnabled}}collapsed{{end}}" id="card-otp-totp">
+                            <div class="accordion-header" onclick="toggleAccordion('card-otp-totp')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📱 Authenticator App (TOTP)</h3>
+                                        <p class="accordion-desc">RFC 6238 time-based 6-digit codes via Microsoft / Google Authenticator</p>
                                     </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <span class="badge {{if .TotpEnabled}}badge-success{{else}}badge-warning{{end}}" id="badge-otp-totp">{{if .TotpEnabled}}Active{{else}}Disabled{{end}}</span>
                                     <label class="toggle-label" style="margin: 0;" title="Activate Authenticator App (TOTP)">
                                         <input type="checkbox" id="otp_enable_totp" name="mfa_enabled_providers[]" value="totp" {{if .TotpEnabled}}checked{{end}} onchange="onOTPToggleChange(this)">
                                         <span class="toggle-switch"></span>
                                     </label>
                                 </div>
-
+                            </div>
+                            <div class="accordion-body">
                                 <div id="totp-settings-body">
                                     <div class="form-group">
                                         <label for="mfa_issuer">Authenticator App Issuer Display Name</label>
@@ -1914,7 +2661,7 @@
                                         <p class="help-text">Title displayed above the OTP code inside the customer's authenticator app.</p>
                                     </div>
 
-                                    <div class="form-group" style="margin-top: 1rem; padding: 0.9rem; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-card);">
+                                    <div class="form-group" style="margin-top: 1rem; padding: 0.9rem; background: var(--bg-card-subtle); border-radius: 8px; border: 1px solid var(--border-card);">
                                         <label class="toggle-label" style="margin-bottom: 0;">
                                             <input type="checkbox" id="allow_dummy_otp" name="allow_dummy_otp" value="true" {{if .Settings.AllowDummyOTP}}checked{{end}}>
                                             <span class="toggle-switch"></span>
@@ -1926,23 +2673,27 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Email OTP Provider Card -->
-                            <div class="otp-provider-card {{if .EmailEnabled}}active{{else}}inactive{{end}}" id="card-otp-email">
-                                <div class="otp-provider-head">
-                                    <div>
-                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <h3 style="margin: 0; font-size: 1rem;">📧 Email OTP (SMTP)</h3>
-                                            <span class="badge {{if .EmailEnabled}}badge-success{{else}}badge-warning{{end}}" id="badge-otp-email">{{if .EmailEnabled}}Active{{else}}Disabled{{end}}</span>
-                                        </div>
-                                        <p class="help-text" style="margin-top: 0.25rem;">Delivers single-use verification codes to the customer's verified email address.</p>
+                        <!-- Email OTP (SMTP) -->
+                        <div class="accordion-section otp-provider-card {{if .EmailEnabled}}active{{else}}inactive{{end}} {{if not .EmailEnabled}}collapsed{{end}}" id="card-otp-email">
+                            <div class="accordion-header" onclick="toggleAccordion('card-otp-email')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📧 Email OTP (SMTP)</h3>
+                                        <p class="accordion-desc">Delivers single-use verification codes to the customer's verified email address</p>
                                     </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <span class="badge {{if .EmailEnabled}}badge-success{{else}}badge-warning{{end}}" id="badge-otp-email">{{if .EmailEnabled}}Active{{else}}Disabled{{end}}</span>
                                     <label class="toggle-label" style="margin: 0;" title="Activate Email OTP">
                                         <input type="checkbox" id="otp_enable_email" name="mfa_enabled_providers[]" value="email" {{if .EmailEnabled}}checked{{end}} onchange="onOTPToggleChange(this)">
                                         <span class="toggle-switch"></span>
                                     </label>
                                 </div>
-
+                            </div>
+                            <div class="accordion-body">
                                 <div id="email-otp-settings-body">
                                     <div class="grid-2">
                                         <div class="form-group">
@@ -2023,391 +2774,194 @@
                         </div>
 
                         <!-- SMS Gateway OTP Provider Card -->
-                        <div class="otp-provider-card {{if .SMSEnabled}}active{{else}}inactive{{end}}" id="card-otp-sms" style="margin-top: 1.25rem;">
-                            <div class="otp-provider-head">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <h3 style="margin: 0; font-size: 1rem;">💬 SMS OTP (Gateway Profiles)</h3>
-                                        <span class="badge {{if .SMSEnabled}}badge-success{{else}}badge-warning{{end}}" id="badge-otp-sms">{{if .SMSEnabled}}Active{{else}}Disabled{{end}}</span>
-                                    </div>
-                                    <p class="help-text" style="margin-top: 0.25rem;">Delivers single-use SMS OTP verification codes via Twilio, iSMS Malaysia, SendQuick, Vonage, or Custom HTTP webhook.</p>
-                                </div>
-                                <label class="toggle-label" style="margin: 0;" title="Activate SMS OTP">
-                                    <input type="checkbox" id="otp_enable_sms" name="mfa_enabled_providers[]" value="sms" {{if .SMSEnabled}}checked{{end}} onchange="onOTPToggleChange(this)">
-                                    <span class="toggle-switch"></span>
-                                </label>
-                            </div>
-
-                            <div id="sms-otp-settings-body">
-                                <input type="hidden" id="sms_provider" name="sms_provider" value="{{.SMSProvider}}">
-                                <input type="hidden" id="sms_profiles_json" name="sms_profiles_json" value="">
-
-                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.65rem;">
-                                    <label style="margin: 0; font-size: 0.85rem;">Select SMS Gateway Integration Profile (Cloud &amp; Hardware Appliances)</label>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('twilio')">Twilio</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('isms')">iSMS</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('vonage')">Vonage</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('sendquick')">SendQuick HW</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('smseagle')">SMSEagle HW</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('multitech')">MultiTech HW</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('teltonika')">Teltonika HW</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('mock')">Local Dev Mock</button>
+                        <div class="accordion-section otp-provider-card {{if .SMSEnabled}}active{{else}}inactive{{end}} {{if not .SMSEnabled}}collapsed{{end}}" id="card-otp-sms">
+                            <div class="accordion-header" onclick="toggleAccordion('card-otp-sms')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">💬 SMS OTP (Gateway Profiles)</h3>
+                                        <p class="accordion-desc">Delivers single-use SMS OTP codes via cloud APIs or on-premise hardware appliances</p>
                                     </div>
                                 </div>
-
-                                <div class="idp-selector-grid" role="group" aria-label="SMS Gateway Provider Profiles" style="margin-bottom: 1rem;">
-                                    <div class="idp-option-card {{if eq .SMSProvider "twilio"}}active editing{{end}}" data-sms-choice="twilio" onclick="selectSMSProvider('twilio')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>🔴 Twilio</span></div>
-                                            <span class="badge {{if eq .SMSProvider "twilio"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="twilio">{{if eq .SMSProvider "twilio"}}Selected{{else}}Cloud API{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">Twilio Programmable SMS REST API using Account SID, Auth Token &amp; From number.</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "isms"}}active editing{{end}}" data-sms-choice="isms" onclick="selectSMSProvider('isms')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>🟡 iSMS</span></div>
-                                            <span class="badge {{if eq .SMSProvider "isms"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="isms">{{if eq .SMSProvider "isms"}}Selected{{else}}Cloud API{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">iSMS (Malaysia / Regional) HTTP Gateway (<code>isms_send_all_id.php</code>).</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "vonage"}}active editing{{end}}" data-sms-choice="vonage" onclick="selectSMSProvider('vonage')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>🟣 Vonage</span></div>
-                                            <span class="badge {{if eq .SMSProvider "vonage"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="vonage">{{if eq .SMSProvider "vonage"}}Selected{{else}}Cloud API{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">Vonage (Nexmo) SMS REST JSON API with API Key &amp; API Secret.</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "sendquick"}}active editing{{end}}" data-sms-choice="sendquick" onclick="selectSMSProvider('sendquick')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>🟢 SendQuick</span></div>
-                                            <span class="badge {{if eq .SMSProvider "sendquick"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="sendquick">{{if eq .SMSProvider "sendquick"}}Selected{{else}}Hardware{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">TalariaX SendQuick Hardware / On-Premise SMS Appliance (<code>tar_num</code>/<code>tar_msg</code>).</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "smseagle"}}active editing{{end}}" data-sms-choice="smseagle" onclick="selectSMSProvider('smseagle')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>🦅 SMSEagle</span></div>
-                                            <span class="badge {{if eq .SMSProvider "smseagle"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="smseagle">{{if eq .SMSProvider "smseagle"}}Selected{{else}}Hardware{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">SMSEagle Hardware SIM-Card Gateway (<code>/index.php/http_api/send_sms</code>).</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "multitech"}}active editing{{end}}" data-sms-choice="multitech" onclick="selectSMSProvider('multitech')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>📡 MultiTech iSMS</span></div>
-                                            <span class="badge {{if eq .SMSProvider "multitech"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="multitech">{{if eq .SMSProvider "multitech"}}Selected{{else}}Hardware{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">MultiTech MultiModem / SMSFinder Hardware Box (<code>/sendmsg</code> CGI API).</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "teltonika"}}active editing{{end}}" data-sms-choice="teltonika" onclick="selectSMSProvider('teltonika')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>📶 Teltonika RUT/TRB</span></div>
-                                            <span class="badge {{if eq .SMSProvider "teltonika"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="teltonika">{{if eq .SMSProvider "teltonika"}}Selected{{else}}Hardware{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">Teltonika Industrial Cellular Router SMS Gateway (<code>/cgi-bin/sms_send</code>).</div>
-                                    </div>
-
-                                    <div class="idp-option-card {{if eq .SMSProvider "custom"}}active editing{{end}}" data-sms-choice="custom" onclick="selectSMSProvider('custom')">
-                                        <div class="idp-option-header">
-                                            <div class="idp-option-title"><span>🧩 Custom HTTP</span></div>
-                                            <span class="badge {{if eq .SMSProvider "custom"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="custom">{{if eq .SMSProvider "custom"}}Selected{{else}}Generic{{end}}</span>
-                                        </div>
-                                        <div class="idp-option-desc">Kannel, Ozeki, Yeastar TG, USB-modem HTTP bridge, or <code>mock://dev</code>.</div>
-                                    </div>
-                                </div>
-
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label for="sms_api_url">SMS Gateway API Endpoint URL</label>
-                                        <input type="text" id="sms_api_url" name="sms_api_url" value="{{.Settings.SMSAPIURL}}" placeholder="https://api.twilio.com/2010-04-01 or mock://dev">
-                                        <p class="help-text" id="smsEndpointHelp">Provider endpoint URL (leave blank or use <code>mock://dev</code> in local dev to log codes safely).</p>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="sms_sender_id" id="smsSenderLabel">Sender ID / From Number</label>
-                                        <input type="text" id="sms_sender_id" name="sms_sender_id" value="{{.Settings.SMSSenderID}}" placeholder="SAMLGuard or +15551234567">
-                                        <p class="help-text">Alphanumeric Sender ID (e.g. <code>SAMLGuard</code>) or E.164 origin phone number.</p>
-                                    </div>
-                                </div>
-
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label for="sms_account_id" id="smsAccountLabel">Account SID / API Username / API Key</label>
-                                        <input type="text" id="sms_account_id" name="sms_account_id" value="{{.Settings.SMSAccountID}}" placeholder="Account SID or API Username">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="sms_auth_token" id="smsTokenLabel">Auth Token / API Password / Secret</label>
-                                        <div class="input-group">
-                                            <input type="password" id="sms_auth_token" name="sms_auth_token" placeholder="•••••••• (Leave blank to keep current)">
-                                            <button type="button" class="btn btn-secondary" onclick="togglePasswordVisibility('sms_auth_token')">👁️</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label for="sms_http_method">HTTP Transport Method</label>
-                                        <select id="sms_http_method" name="sms_http_method">
-                                            <option value="" {{if eq .Settings.SMSHTTPMethod ""}}selected{{end}}>Provider Default (Recommended)</option>
-                                            <option value="POST" {{if eq .Settings.SMSHTTPMethod "POST"}}selected{{end}}>POST</option>
-                                            <option value="GET" {{if eq .Settings.SMSHTTPMethod "GET"}}selected{{end}}>GET (Query Parameters)</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="sms_message_template">SMS Message Template</label>
-                                        <input type="text" id="sms_message_template" name="sms_message_template" value="{{.Settings.SMSMessageTemplate}}" placeholder="Your SAMLGuard verification code is {code}. Valid for 5 minutes.">
-                                        <p class="help-text">Use <code>{code}</code> placeholder for the generated 6-digit OTP.</p>
-                                    </div>
-                                </div>
-
-                                <!-- Live Send Test SMS Box -->
-                                <div class="guide-box" style="margin-top: 0.75rem;">
-                                    <h3>📲 Live SMS Gateway Test</h3>
-                                    <div class="input-group">
-                                        <input type="text" id="testSMSRecipient" placeholder="Enter mobile number (e.g. +60123456789)" style="flex: 1;">
-                                        <button type="button" class="btn btn-secondary" id="btnTestSMS" onclick="sendTestSMS()" style="border-color: var(--brand-green); color: var(--brand-green);">
-                                            <span id="testSMSSpinner" class="spinner" style="display: none;"></span>
-                                            <span>Send Test SMS</span>
-                                        </button>
-                                    </div>
-                                    <div id="testSMSResult" style="margin-top: 0.75rem; display: none;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 3: SERVICE PROVIDERS (Downstream SP - Schneider ITA) -->
-                <div id="tab-downstream" class="tab-content-pane">
-                    <!-- CARD: Host Network Interface & SAML Endpoints -->
-                    <div class="card" style="margin-bottom: 1.5rem;">
-                        <div class="card-header">
-                            <div>
-                                <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span>🌐 SAMLGuard Host Network Interface & Endpoints</span>
-                                </h2>
-                                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
-                                    Select the host network interface and IPv4 address used for canonical SAML endpoints.
-                                </p>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                                <span id="netStatusPill" class="badge {{if .IsNetworkIPAvailable}}badge-success{{else}}badge-danger{{end}}">
-                                    {{if .IsNetworkIPAvailable}}● IP Active{{else}}⚠️ IP Missing{{end}}
-                                </span>
-                                <span id="netInterfacePill" class="badge badge-info" title="Selected Network Interface">
-                                    🔌 {{if .SelectedNetworkInterface}}{{.SelectedNetworkInterface}}{{else}}None{{end}}
-                                </span>
-                                <span id="netModeBadge" class="badge {{if eq .PublicURLMode "manual"}}badge-warning{{else}}badge-success{{end}}">
-                                    {{if eq .PublicURLMode "manual"}}⚡ Manual Override{{else}}🔌 Interface Bound{{end}}
-                                </span>
-                                <span id="netTLSSANPill" class="badge {{if .TLSCertValidForCurrentIP}}badge-success{{else}}badge-warning{{end}}" title="TLS Certificate SAN match for selected host IP">
-                                    {{if .TLSCertValidForCurrentIP}}🔒 TLS SAN Valid{{else}}⚠️ TLS SAN Mismatch{{end}}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Missing / Disconnected IP Alert Banner -->
-                        <div id="netMissingIPBanner" class="flash-alert alert-warning" style="{{if .IsNetworkIPAvailable}}display: none;{{end}} margin-bottom: 1.25rem; border-left: 4px solid var(--accent-warning, #f59e0b);">
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                                <span style="font-size: 1.5rem; line-height: 1;">⚠️</span>
-                                <div>
-                                    <strong style="color: var(--text-primary); font-size: 0.95rem;">Configured Host Network Interface / IP Not Detected</strong>
-                                    <p style="margin: 0.25rem 0 0.5rem 0; font-size: 0.85rem; color: var(--text-secondary);">
-                                        The configured IP <code id="netMissingIPVal" style="font-weight: 700;">{{.SelectedNetworkIP}}</code> is not currently assigned to any active interface on this machine.
-                                        SAMLGuard will not silently switch interfaces. Please select an active interface below and click <strong>Save Configuration</strong>.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Network Interface Selection Section -->
-                        <div style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-card); margin-bottom: 1.25rem;">
-                            <div class="form-group" style="margin-bottom: 1rem;">
-                                <label for="netInterfaceSelect" style="font-weight: 600;">Network Interface & IPv4 Address</label>
-                                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                                    <select id="netInterfaceSelect" style="flex: 1; min-width: 250px;" onchange="onNetworkInterfaceSelectChange()">
-                                        {{range .AvailableInterfaces}}
-                                        <option value="{{.Name}}|{{.PrimaryIP}}" data-iface="{{.Name}}" data-ip="{{.PrimaryIP}}" {{if and (eq $.SelectedNetworkInterface .Name) (eq $.SelectedNetworkIP .PrimaryIP)}}selected{{end}}>
-                                            {{.DisplayName}} – {{.PrimaryIP}} {{if .IsVirtual}}[virtual]{{end}}
-                                        </option>
-                                        {{end}}
-                                    </select>
-                                    <button type="button" class="btn btn-secondary" onclick="refreshNetworkInterfaces()" style="white-space: nowrap;">
-                                        🔄 Refresh Interfaces
-                                    </button>
-                                    <button type="button" class="btn btn-primary" onclick="saveSelectedNetworkInterface()" style="white-space: nowrap;">
-                                        💾 Save Configuration
-                                    </button>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-                                    <input type="checkbox" id="netIncludeVirtual" onchange="refreshNetworkInterfaces()" style="width: auto; margin: 0;">
-                                    <label for="netIncludeVirtual" style="font-size: 0.82rem; color: var(--text-muted); margin: 0; cursor: pointer;">
-                                        Show virtual & container interfaces (Docker, WSL, Hyper-V)
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <span class="badge {{if .SMSEnabled}}badge-success{{else}}badge-warning{{end}}" id="badge-otp-sms">{{if .SMSEnabled}}Active{{else}}Disabled{{end}}</span>
+                                    <label class="toggle-label" style="margin: 0;" title="Activate SMS OTP">
+                                        <input type="checkbox" id="otp_enable_sms" name="mfa_enabled_providers[]" value="sms" {{if .SMSEnabled}}checked{{end}} onchange="onOTPToggleChange(this)">
+                                        <span class="toggle-switch"></span>
                                     </label>
                                 </div>
-                                <div id="netSaveMsg" style="margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600;"></div>
                             </div>
-                        </div>
+                            <div class="accordion-body">
+                                <div id="sms-otp-settings-body">
+                                    <input type="hidden" id="sms_provider" name="sms_provider" value="{{.SMSProvider}}">
+                                    <input type="hidden" id="sms_profiles_json" name="sms_profiles_json" value="">
 
-                        <!-- Endpoint Display Grid -->
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label>Selected SAMLGuard IP</label>
-                                <div class="input-group">
-                                    <input type="text" id="netSelectedIP" value="{{.SelectedNetworkIP}}" readonly style="background: var(--bg-card-subtle); font-family: monospace; font-weight: 600;">
-                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netSelectedIP')">Copy</button>
-                                </div>
-                                <p class="help-text">Active IPv4 host address explicitly selected by the administrator.</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Canonical Public Base URL</label>
-                                <div class="input-group">
-                                    <input type="text" id="netPublicBaseURL" value="{{.PublicBaseURL}}" readonly style="background: var(--bg-card-subtle); font-family: monospace; font-weight: 600;">
-                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netPublicBaseURL')">Copy</button>
-                                </div>
-                                <p class="help-text">Root URL used for all public-facing authentication endpoints.</p>
-                            </div>
-                        </div>
-
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label>SAMLGuard Gateway ACS URL (Inbound from Upstream IdP)</label>
-                                <div class="input-group">
-                                    <input type="text" id="netGatewayACSURL" value="{{.GatewayACSURL}}" readonly style="background: var(--bg-card-subtle); font-family: monospace;">
-                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netGatewayACSURL')">Copy</button>
-                                </div>
-                                <p class="help-text">Where Microsoft Entra / Keycloak posts SAML assertions back to SAMLGuard (<code>/saml/acs</code>).</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label>SAMLGuard Metadata URL</label>
-                                <div class="input-group">
-                                    <input type="text" id="netMetadataURL" value="{{.PublicBaseURL}}/metadata" readonly style="background: var(--bg-card-subtle); font-family: monospace;">
-                                    <button type="button" class="btn btn-secondary" onclick="copyInput('netMetadataURL')">Copy</button>
-                                </div>
-                                <p class="help-text">Public SAML 2.0 EntityDescriptor metadata endpoint.</p>
-                            </div>
-                        </div>
-
-                        <!-- Manual Public URL Override Section -->
-                        <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-card-subtle); border-radius: 8px; border: 1px solid var(--border-card);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                                <div>
-                                    <strong style="color: var(--text-primary); font-size: 0.9rem;">Manual Public URL Override (Reverse Proxy / FQDN)</strong>
-                                    <p class="help-text" style="margin: 0.2rem 0 0 0;">Override host IP with a static DNS domain name or reverse proxy URL.</p>
-                                </div>
-                                <label class="toggle-label" style="margin: 0;">
-                                    <input type="checkbox" id="netManualOverrideToggle" onchange="toggleManualOverride(this.checked)" {{if eq .PublicURLMode "manual"}}checked{{end}}>
-                                    <span class="toggle-switch"></span>
-                                </label>
-                            </div>
-
-                            <div id="netManualOverrideControls" style="{{if ne .PublicURLMode "manual"}}display: none;{{end}} margin-top: 0.75rem;">
-                                <div class="grid-2" style="align-items: flex-end;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <label for="netManualPublicURL">Custom Public URL (HTTPS / FQDN)</label>
-                                        <input type="url" id="netManualPublicURL" placeholder="https://samlguard.company.com:8443" value="{{.Settings.ManualPublicURL}}">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.65rem;">
+                                        <label style="margin: 0; font-size: 0.85rem;">Select SMS Gateway Integration Profile (Cloud &amp; Hardware Appliances)</label>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('twilio')">Twilio</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('isms')">iSMS</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('vonage')">Vonage</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('sendquick')">SendQuick HW</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('smseagle')">SMSEagle HW</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('multitech')">MultiTech HW</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('teltonika')">Teltonika HW</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="applySMSPreset('mock')">Local Dev Mock</button>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <button type="button" class="btn btn-primary" onclick="saveManualPublicURL(true)">Save Override</button>
-                                        <button type="button" class="btn btn-secondary" onclick="saveManualPublicURL(false)">Revert to Selected Interface</button>
+
+                                    <div class="idp-selector-grid" role="group" aria-label="SMS Gateway Provider Profiles" style="margin-bottom: 1rem;">
+                                        <div class="idp-option-card {{if eq .SMSProvider "twilio"}}active editing{{end}}" data-sms-choice="twilio" onclick="selectSMSProvider('twilio')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>🔴 Twilio</span></div>
+                                                <span class="badge {{if eq .SMSProvider "twilio"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="twilio">{{if eq .SMSProvider "twilio"}}Selected{{else}}Cloud API{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">Twilio Programmable SMS REST API using Account SID, Auth Token &amp; From number.</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "isms"}}active editing{{end}}" data-sms-choice="isms" onclick="selectSMSProvider('isms')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>🟡 iSMS</span></div>
+                                                <span class="badge {{if eq .SMSProvider "isms"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="isms">{{if eq .SMSProvider "isms"}}Selected{{else}}Cloud API{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">iSMS (Malaysia / Regional) HTTP Gateway (<code>isms_send_all_id.php</code>).</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "vonage"}}active editing{{end}}" data-sms-choice="vonage" onclick="selectSMSProvider('vonage')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>🟣 Vonage</span></div>
+                                                <span class="badge {{if eq .SMSProvider "vonage"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="vonage">{{if eq .SMSProvider "vonage"}}Selected{{else}}Cloud API{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">Vonage (Nexmo) SMS REST JSON API with API Key &amp; API Secret.</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "sendquick"}}active editing{{end}}" data-sms-choice="sendquick" onclick="selectSMSProvider('sendquick')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>🟢 SendQuick</span></div>
+                                                <span class="badge {{if eq .SMSProvider "sendquick"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="sendquick">{{if eq .SMSProvider "sendquick"}}Selected{{else}}Hardware{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">TalariaX SendQuick Hardware / On-Premise SMS Appliance (<code>tar_num</code>/<code>tar_msg</code>).</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "smseagle"}}active editing{{end}}" data-sms-choice="smseagle" onclick="selectSMSProvider('smseagle')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>🦅 SMSEagle</span></div>
+                                                <span class="badge {{if eq .SMSProvider "smseagle"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="smseagle">{{if eq .SMSProvider "smseagle"}}Selected{{else}}Hardware{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">SMSEagle Hardware SIM-Card Gateway (<code>/index.php/http_api/send_sms</code>).</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "multitech"}}active editing{{end}}" data-sms-choice="multitech" onclick="selectSMSProvider('multitech')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>📡 MultiTech iSMS</span></div>
+                                                <span class="badge {{if eq .SMSProvider "multitech"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="multitech">{{if eq .SMSProvider "multitech"}}Selected{{else}}Hardware{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">MultiTech MultiModem / SMSFinder Hardware Box (<code>/sendmsg</code> CGI API).</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "teltonika"}}active editing{{end}}" data-sms-choice="teltonika" onclick="selectSMSProvider('teltonika')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>📶 Teltonika RUT/TRB</span></div>
+                                                <span class="badge {{if eq .SMSProvider "teltonika"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="teltonika">{{if eq .SMSProvider "teltonika"}}Selected{{else}}Hardware{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">Teltonika Industrial Cellular Router SMS Gateway (<code>/cgi-bin/sms_send</code>).</div>
+                                        </div>
+
+                                        <div class="idp-option-card {{if eq .SMSProvider "custom"}}active editing{{end}}" data-sms-choice="custom" onclick="selectSMSProvider('custom')">
+                                            <div class="idp-option-header">
+                                                <div class="idp-option-title"><span>🧩 Custom HTTP</span></div>
+                                                <span class="badge {{if eq .SMSProvider "custom"}}badge-success{{else}}badge-info{{end}}" data-sms-badge="custom">{{if eq .SMSProvider "custom"}}Selected{{else}}Generic{{end}}</span>
+                                            </div>
+                                            <div class="idp-option-desc">Kannel, Ozeki, Yeastar TG, USB-modem HTTP bridge, or <code>mock://dev</code>.</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2">
+                                        <div class="form-group">
+                                            <label for="sms_api_url">SMS Gateway API Endpoint URL</label>
+                                            <input type="text" id="sms_api_url" name="sms_api_url" value="{{.Settings.SMSAPIURL}}" placeholder="https://api.twilio.com/2010-04-01 or mock://dev">
+                                            <p class="help-text" id="smsEndpointHelp">Provider endpoint URL (leave blank or use <code>mock://dev</code> in local dev to log codes safely).</p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="sms_sender_id" id="smsSenderLabel">Sender ID / From Number</label>
+                                            <input type="text" id="sms_sender_id" name="sms_sender_id" value="{{.Settings.SMSSenderID}}" placeholder="SAMLGuard or +15551234567">
+                                            <p class="help-text">Alphanumeric Sender ID (e.g. <code>SAMLGuard</code>) or E.164 origin phone number.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2">
+                                        <div class="form-group">
+                                            <label for="sms_account_id" id="smsAccountLabel">Account SID / API Username / API Key</label>
+                                            <input type="text" id="sms_account_id" name="sms_account_id" value="{{.Settings.SMSAccountID}}" placeholder="Account SID or API Username">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="sms_auth_token" id="smsTokenLabel">Auth Token / API Password / Secret</label>
+                                            <div class="input-group">
+                                                <input type="password" id="sms_auth_token" name="sms_auth_token" placeholder="•••••••• (Leave blank to keep current)">
+                                                <button type="button" class="btn btn-secondary" onclick="togglePasswordVisibility('sms_auth_token')">👁️</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2">
+                                        <div class="form-group">
+                                            <label for="sms_http_method">HTTP Transport Method</label>
+                                            <select id="sms_http_method" name="sms_http_method">
+                                                <option value="" {{if eq .Settings.SMSHTTPMethod ""}}selected{{end}}>Provider Default (Recommended)</option>
+                                                <option value="POST" {{if eq .Settings.SMSHTTPMethod "POST"}}selected{{end}}>POST</option>
+                                                <option value="GET" {{if eq .Settings.SMSHTTPMethod "GET"}}selected{{end}}>GET (Query Parameters)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="sms_message_template">SMS Message Template</label>
+                                            <input type="text" id="sms_message_template" name="sms_message_template" value="{{.Settings.SMSMessageTemplate}}" placeholder="Your SAMLGuard verification code is {code}. Valid for 5 minutes.">
+                                            <p class="help-text">Use <code>{code}</code> placeholder for the generated 6-digit OTP.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Live Send Test SMS Box -->
+                                    <div class="guide-box" style="margin-top: 0.75rem;">
+                                        <h3>📲 Live SMS Gateway Test</h3>
+                                        <div class="input-group">
+                                            <input type="text" id="testSMSRecipient" placeholder="Enter mobile number (e.g. +60123456789)" style="flex: 1;">
+                                            <button type="button" class="btn btn-secondary" id="btnTestSMS" onclick="sendTestSMS()" style="border-color: var(--brand-green); color: var(--brand-green);">
+                                                <span id="testSMSSpinner" class="spinner" style="display: none;"></span>
+                                                <span>Send Test SMS</span>
+                                            </button>
+                                        </div>
+                                        <div id="testSMSResult" style="margin-top: 0.75rem; display: none;"></div>
                                     </div>
                                 </div>
-                                <div id="netOverrideMsg" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>🏢 Downstream Service Provider (Schneider Electric EcoStruxure IT Advisor)</h2>
-                        </div>
-
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="entity_id">SAMLGuard Gateway Entity ID</label>
-                                <input type="text" id="entity_id" name="entity_id" value="{{.Settings.EntityID}}" required>
-                                <p class="help-text">This gateway's entity identifier as presented to downstream SP and upstream IdP.</p>
+                    <!-- Category E: Advanced Settings & Integration Guide -->
+                    <div id="sp-cat-advanced" class="category-pane">
+                        <div class="accordion-section" id="sec-sp-ita-guide">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sp-ita-guide')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🏢 Schneider Electric EcoStruxure IT Advisor (ITA) Setup Guide</h3>
+                                        <p class="accordion-desc">Step-by-step external SAML 2.0 configuration guide for ITA administrators</p>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div class="form-group">
-                                <label for="acs_url">Downstream ITA ACS Callback URL</label>
-                                <input type="text" id="acs_url" name="acs_url" value="{{.Settings.ACSURL}}" placeholder="https://ita.example.com/api/current/authentication/saml2-callback" required>
-                                <p class="help-text">Exact callback endpoint on Schneider ITA where the signed assertion is POSTed.</p>
+                            <div class="accordion-body">
+                                <div class="guide-box" style="margin: 0;">
+                                    <ol style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.8;">
+                                        <li>Log in to ITA Web Client (<code>https://ita.example.com</code>) as an administrator.</li>
+                                        <li>Navigate to <strong>Administration</strong> &gt; <strong>External Authentication</strong> &gt; <strong>SAML 2.0</strong>.</li>
+                                        <li>Set <strong>IdP Entity ID</strong>: <code id="itaGuideIdPEntityID">{{.Settings.EntityID}}</code> <button type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" onclick="copyText('itaGuideIdPEntityID')">Copy</button></li>
+                                        <li>Set <strong>Single Sign-On Service URL</strong>: <code id="itaGuideSSO">{{.Settings.SSOURL}}</code> <button type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" onclick="copyText('itaGuideSSO')">Copy</button></li>
+                                        <li>Download the <strong>SAMLGuard Signing Certificate</strong> from System Settings and upload to ITA.</li>
+                                    </ol>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="sso_url">Gateway Single Sign-On (SSO) URL</label>
-                                <input type="text" id="sso_url" name="sso_url" value="{{.Settings.SSOURL}}" required>
-                                <p class="help-text">Entry point where ITA sends AuthnRequests (e.g. https://samlguard.example.com:8443/login).</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="slo_url">Gateway Single Logout (SLO) URL</label>
-                                <input type="text" id="slo_url" name="slo_url" value="{{.Settings.SLOURL}}" required>
-                                <p class="help-text">Logout termination endpoint for SAML session invalidation.</p>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="allowed_audiences">Allowed SAML Audiences (Comma-Separated)</label>
-                            <input type="text" id="allowed_audiences" name="allowed_audiences_str" value="{{.AllowedAudiencesStr}}" placeholder="https://ita.example.com, https://samlguard.example.com:8443">
-                            <p class="help-text">Permitted SAML AudienceRestriction URIs accepted by the gateway and generated in assertions.</p>
-                        </div>
-
-                        <!-- Role / Group Mapping Table -->
-                        <div class="form-group" style="margin-top: 1.5rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <label style="margin-bottom: 0;">Group & Role Mappings (Upstream Claim ➔ ITA Role)</label>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="addGroupMappingRow('', '')">+ Add Mapping</button>
-                            </div>
-                            <table class="table" id="groupMappingTable">
-                                <thead>
-                                    <tr>
-                                        <th>Upstream Group / Role Claim</th>
-                                        <th>Target Schneider ITA Role</th>
-                                        <th style="width: 80px;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{range $k, $v := .Settings.GroupMapping}}
-                                    <tr>
-                                        <td><input type="text" name="group_map_key[]" value="{{$k}}" placeholder="e.g. ita-admins" required></td>
-                                        <td>
-                                            <select name="group_map_val[]">
-                                                <option value="Admin" {{if eq $v "Admin"}}selected{{end}}>Admin</option>
-                                                <option value="Operator" {{if eq $v "Operator"}}selected{{end}}>Operator</option>
-                                                <option value="Viewer" {{if eq $v "Viewer"}}selected{{end}}>Viewer</option>
-                                            </select>
-                                        </td>
-                                        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
-                                    </tr>
-                                    {{end}}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- ITA SAML Integration Guide -->
-                        <div class="guide-box">
-                            <h3>🏢 Schneider Electric EcoStruxure IT Advisor (ITA) Setup Guide</h3>
-                            <ol style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.8;">
-                                <li>Log in to ITA Web Client (<code>https://ita.example.com</code>) as an administrator.</li>
-                                <li>Navigate to <strong>Administration</strong> &gt; <strong>External Authentication</strong> &gt; <strong>SAML 2.0</strong>.</li>
-                                <li>Set <strong>IdP Entity ID</strong>: <code id="itaGuideIdPEntityID">{{.Settings.EntityID}}</code> <button type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" onclick="copyText('itaGuideIdPEntityID')">Copy</button></li>
-                                <li>Set <strong>Single Sign-On Service URL</strong>: <code id="itaGuideSSO">{{.Settings.SSOURL}}</code> <button type="button" class="btn btn-sm btn-secondary" style="padding: 0.15rem 0.4rem; font-size: 0.7rem;" onclick="copyText('itaGuideSSO')">Copy</button></li>
-                                <li>Download the <strong>SAMLGuard Signing Certificate</strong> from System Settings and upload to ITA.</li>
-                            </ol>
                         </div>
                     </div>
                 </div>
@@ -2546,68 +3100,178 @@
                     </div>
                 </div>
 
-                <!-- TAB 6: SYSTEM SETTINGS (Metadata, Certs & Provider Summary) -->
+                <!-- TAB 6: SYSTEM SETTINGS -->
                 <div id="tab-system-settings" class="tab-content-pane">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>🪪 Active Identity &amp; OTP Providers Summary</h2>
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="const btn = document.getElementById('nav-tab-upstream'); if (btn) btn.click();">Manage IdP &amp; OTP Providers →</button>
-                        </div>
-                        <p class="help-text" style="margin-bottom: 0.75rem;">
-                            Upstream SAML IdP selection, multi-OTP activation (Authenticator App &amp; Email OTP), and SMTP delivery settings are managed together in the <strong>Identity Providers</strong> tab.
-                        </p>
-                        <div style="display: flex; flex-wrap: wrap; gap: 0.6rem;">
-                            <span class="badge badge-info">Upstream IdP: <strong style="text-transform: uppercase;">{{.ActiveIdP}}</strong></span>
-                            {{if .TotpEnabled}}<span class="badge badge-success">📱 Authenticator App (TOTP): Active</span>{{end}}
-                            {{if .EmailEnabled}}<span class="badge badge-success">📧 Email OTP: Active</span>{{end}}
-                            {{if .SMSEnabled}}<span class="badge badge-success">💬 SMS OTP: Active ({{.SMSProvider}})</span>{{end}}
-                            <span class="badge badge-info">Default OTP: <strong style="text-transform: uppercase;">{{.Settings.MFADefaultProvider}}</strong></span>
+                    <!-- Category Navigation (Level 2) -->
+                    <div class="category-nav-wrapper">
+                        <div class="category-nav" role="tablist" aria-label="System Settings Categories">
+                            <button type="button" class="category-nav-btn active" data-cat-target="sys-cat-branding" onclick="switchCategoryTab(this, 'sys-cat-branding', 'tab-system-settings')">
+                                <span class="cat-icon">🎨</span>
+                                <span>Application &amp; Branding</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sys-cat-certs" onclick="switchCategoryTab(this, 'sys-cat-certs', 'tab-system-settings')">
+                                <span class="cat-icon">📜</span>
+                                <span>Certificates &amp; Security</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sys-cat-metadata" onclick="switchCategoryTab(this, 'sys-cat-metadata', 'tab-system-settings')">
+                                <span class="cat-icon">📄</span>
+                                <span>Metadata XML Downloads</span>
+                            </button>
+                            <button type="button" class="category-nav-btn" data-cat-target="sys-cat-overview" onclick="switchCategoryTab(this, 'sys-cat-overview', 'tab-system-settings')">
+                                <span class="cat-icon">🪪</span>
+                                <span>Providers Overview</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Certificate & Metadata Row -->
-                    <div class="grid-2" style="margin-top: 1.5rem;">
-                        <!-- Download Metadata Card -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>📄 Metadata XML Downloads</h2>
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                <div class="guide-item" style="padding: 0.75rem;">
-                                    <div>
-                                        <div style="font-weight: 600; color: var(--text-primary);">SP Metadata XML (Gateway as SP)</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">Upload to Microsoft Entra ID or Keycloak</div>
-                                    </div>
-                                    <a href="/saml/metadata/sp" download="samlguard-sp-metadata.xml" class="btn btn-sm btn-secondary">⬇️ Download XML</a>
-                                </div>
+                    <!-- Category A: Application & Branding -->
+                    <div id="sys-cat-branding" class="category-pane active">
+                        <input type="hidden" id="branding_active_profile" name="branding_active_profile" value="{{.BrandingActiveProfile}}">
+                        <input type="hidden" id="branding_profiles_json" name="branding_profiles_json" value="">
 
-                                <div class="guide-item" style="padding: 0.75rem;">
-                                    <div>
-                                        <div style="font-weight: 600; color: var(--text-primary);">IdP Metadata XML (Gateway as IdP)</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">Upload to Schneider Electric EcoStruxure ITA</div>
+                        <!-- Branding Profiles & Identity -->
+                        <div class="accordion-section" id="brandingProfilesCard">
+                            <div class="accordion-header" onclick="toggleAccordion('brandingProfilesCard')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🎨 Custom Theme &amp; Branding Profiles</h3>
+                                        <p class="accordion-desc">Application titles, branding presets, and multi-profile management</p>
                                     </div>
-                                    <a href="/saml/metadata/idp" download="samlguard-idp-metadata.xml" class="btn btn-sm btn-secondary">⬇️ Download XML</a>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="createBrandingProfile(false)">+ New Profile</button>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="createBrandingProfile(true)">✨ Generic App Template</button>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="duplicateBrandingProfile()">⧉ Duplicate</button>
+                                    <button type="button" class="btn btn-sm btn-secondary" id="btnResetBrandingProfile" onclick="resetActiveBrandingProfile()">↺ Reset Profile</button>
+                                    <button type="button" class="btn btn-sm btn-danger" id="btnDeleteBrandingProfile" onclick="deleteActiveBrandingProfile()" style="display: none;">🗑 Delete</button>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="idp-selector-grid" id="brandingProfileGrid" style="margin-bottom: 1.25rem;"></div>
+
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="theme_profile_name">Profile Display Name</label>
+                                        <input type="text" id="theme_profile_name" placeholder="e.g. Acme Portal Theme">
+                                        <div class="help-text">Friendly label shown in the theme selector above (<code id="theme_profile_key_badge">default</code>).</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="theme_app_name">Portal / App Name</label>
+                                        <input type="text" id="theme_app_name" placeholder="SAMLGuard">
+                                        <div class="help-text">Displayed in browser titles, login cards, admin sidebar, and footer.</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="theme_target_app_name">Target SAML Application Name</label>
+                                        <input type="text" id="theme_target_app_name" placeholder="Schneider Electric IT Advisor">
+                                        <div class="help-text">Shown in login prompts (e.g. "Secure access to &lt;Target App&gt;").</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="theme_subtitle">Header Subtitle</label>
+                                        <input type="text" id="theme_subtitle" placeholder="IT Advisor">
+                                        <div class="help-text">Small label next to the top-left header logo (leave blank when using a custom logo unless needed).</div>
+                                    </div>
+
+                                    <div class="form-group" style="grid-column: 1 / -1;">
+                                        <label for="theme_footer_text">Footer Text</label>
+                                        <input type="text" id="theme_footer_text" placeholder="© 2026 SAMLGuard. All rights reserved.">
+                                        <div class="help-text">Displayed on the right side of the page footer across all login, MFA, error, guide, and admin pages (enter <code>none</code> to hide).</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Certificate Management Card -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>📜 Certificates & Keys</h2>
+                        <!-- Theme Colors & UI Visibility -->
+                        <div class="accordion-section" id="sec-sys-theme-colors">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sys-theme-colors')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">✨ Theme Accent Color &amp; UI Visibility</h3>
+                                        <p class="accordion-desc">Custom Schneider Electric brand accent color and element toggles</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                <div class="guide-item" style="padding: 0.75rem;">
+                            <div class="accordion-body">
+                                <div class="form-group" style="max-width: 420px; margin-bottom: 1.25rem;">
+                                    <label for="theme_accent_color_text">Primary Accent Color (Hex)</label>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                        <input type="color" id="theme_accent_color_picker" value="#00B050" style="width: 44px; height: 38px; padding: 2px; border-radius: 8px; cursor: pointer;">
+                                        <input type="text" id="theme_accent_color_text" value="#00B050" placeholder="#00B050" style="font-family: ui-monospace, SFMono-Regular, monospace;">
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="setAccentColor('#00B050')">Reset</button>
+                                    </div>
+                                    <div class="help-text">Controls primary buttons, focus rings, sidebar highlights, and shield glow.</div>
+                                </div>
+
+                                <div class="branding-toggle-row">
+                                    <label class="branding-toggle-item">
+                                        <input type="checkbox" id="theme_show_app_icon" checked>
+                                        <span>Show App Card Icon</span>
+                                    </label>
+                                    <label class="branding-toggle-item">
+                                        <input type="checkbox" id="theme_show_header_logo" checked>
+                                        <span>Show Header Left Logo</span>
+                                    </label>
+                                    <label class="branding-toggle-item">
+                                        <input type="checkbox" id="theme_show_subtitle" checked>
+                                        <span>Show Header Subtitle</span>
+                                    </label>
+                                    <label class="branding-toggle-item">
+                                        <input type="checkbox" id="theme_show_org_logo" checked>
+                                        <span>Show Organization / Right Logo</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Media Assets -->
+                        <div class="accordion-section collapsed" id="sec-sys-branding-assets">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sys-branding-assets')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🖼️ Brand Media Assets (Logos &amp; Favicons)</h3>
+                                        <p class="accordion-desc">Upload and manage high-resolution SVG/PNG brand assets</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="branding-asset-grid" id="brandingAssetGrid"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category B: Certificates & Security -->
+                    <div id="sys-cat-certs" class="category-pane">
+                        <!-- SAML Signing Certificate & Inspector -->
+                        <div class="accordion-section" id="sec-sys-saml-cert">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sys-saml-cert')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📜 SAML Signing Certificate &amp; Inspector</h3>
+                                        <p class="accordion-desc">Cryptographic assertion signing certificate and expiration telemetry</p>
+                                    </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <a href="/admin/cert/download?type=saml" class="btn btn-sm btn-secondary">⬇️ Download .crt</a>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="guide-item" style="padding: 0.75rem; margin-bottom: 1rem;">
                                     <div>
                                         <div style="font-weight: 600; color: var(--text-primary);">SAML Signing Certificate (.crt)</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">Public certificate for assertion signatures</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">Public certificate for assertion signatures. Upload to downstream SP (Schneider IT Advisor).</div>
                                     </div>
                                     <a href="/admin/cert/download?type=saml" class="btn btn-sm btn-secondary">⬇️ Download .crt</a>
                                 </div>
 
-                                <div class="guide-box" style="margin-top: 0.5rem;">
+                                <div class="guide-box" style="margin: 0;">
                                     <h3>🔍 SAML Certificate Inspector</h3>
-                                    <div style="font-size: 0.8rem; line-height: 1.7; color: var(--text-secondary);">
+                                    <div style="font-size: 0.82rem; line-height: 1.8; color: var(--text-secondary);">
                                         <div><strong>Subject:</strong> <span style="color: var(--brand-green);">{{.CertInfo.Subject}}</span></div>
                                         <div><strong>Issuer:</strong> <span>{{.CertInfo.Issuer}}</span></div>
                                         <div><strong>Valid Until:</strong> {{.CertInfo.NotAfter}}</div>
@@ -2620,133 +3284,129 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <!-- Automatic HTTPS / Let's Encrypt -->
-                                <div class="guide-box" style="margin-top: 0.5rem;">
-                                    <input type="hidden" name="tls_submitted" value="1">
-                                    <h3>🔒 Automatic HTTPS (Let's Encrypt / ACME)</h3>
-                                    <p class="help-text" style="margin-bottom: 0.75rem;">
-                                        Automatically issue and renew browser-trusted SSL certificates via Let's Encrypt for cloud or internet-facing deployments. Requires a public DNS domain pointing to this host with ports <strong>80</strong> and/or <strong>443</strong> reachable. Changes take effect after server restart.
-                                    </p>
-                                    <div style="display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 0.85rem;">
-                                        <label class="toggle-label" style="margin: 0; display: flex; align-items: center; gap: 0.6rem;">
-                                            <input type="checkbox" id="tls_enabled" name="tls_enabled" {{if .Settings.TLSEnabled}}checked{{end}}>
-                                            <span>Enable HTTPS (TLS) on Gateway Listener</span>
-                                        </label>
-                                        <label class="toggle-label" style="margin: 0; display: flex; align-items: center; gap: 0.6rem;">
-                                            <input type="checkbox" id="auto_tls_enabled" name="auto_tls_enabled" {{if .Settings.AutoTLSEnabled}}checked{{end}}>
-                                            <span>Auto-generate &amp; renew SSL via Let's Encrypt (ACME)</span>
-                                        </label>
+                        <!-- Automatic HTTPS / Let's Encrypt -->
+                        <div class="accordion-section {{if not .Settings.TLSEnabled}}collapsed{{end}}" id="sec-sys-auto-tls">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sys-auto-tls')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🔒 Automatic HTTPS &amp; TLS (Let's Encrypt / ACME)</h3>
+                                        <p class="accordion-desc">Automatic issuance and renewal of browser-trusted SSL certificates</p>
                                     </div>
-                                    <div class="grid-2">
-                                        <div class="form-group">
-                                            <label for="auto_tls_domains_str">Public Domain(s) (Comma-Separated)</label>
-                                            <input type="text" id="auto_tls_domains_str" name="auto_tls_domains_str" value="{{.AutoTLSDomainsStr}}" placeholder="sso.yourdomain.com">
-                                            <p class="help-text">Must be DNS domain names (not raw IP addresses).</p>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="auto_tls_email">Let's Encrypt Notification Email</label>
-                                            <input type="email" id="auto_tls_email" name="auto_tls_email" value="{{.Settings.AutoTLSEmail}}" placeholder="admin@yourdomain.com">
-                                        </div>
+                                </div>
+                                <div class="accordion-actions" onclick="event.stopPropagation()">
+                                    <label class="toggle-label" style="margin: 0;" title="Enable HTTPS on Gateway Listener">
+                                        <input type="checkbox" id="tls_enabled" name="tls_enabled" {{if .Settings.TLSEnabled}}checked{{end}}>
+                                        <span class="toggle-switch"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="accordion-body">
+                                <input type="hidden" name="tls_submitted" value="1">
+                                <p class="help-text" style="margin-bottom: 0.75rem;">
+                                    Automatically issue and renew browser-trusted SSL certificates via Let's Encrypt for cloud or internet-facing deployments. Requires a public DNS domain pointing to this host with ports <strong>80</strong> and/or <strong>443</strong> reachable. Changes take effect after server restart.
+                                </p>
+                                <div style="display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 0.85rem;">
+                                    <label class="toggle-label" style="margin: 0; display: flex; align-items: center; gap: 0.6rem;">
+                                        <input type="checkbox" id="auto_tls_enabled" name="auto_tls_enabled" {{if .Settings.AutoTLSEnabled}}checked{{end}}>
+                                        <span>Auto-generate &amp; renew SSL via Let's Encrypt (ACME)</span>
+                                    </label>
+                                </div>
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label for="auto_tls_domains_str">Public Domain(s) (Comma-Separated)</label>
+                                        <input type="text" id="auto_tls_domains_str" name="auto_tls_domains_str" value="{{.AutoTLSDomainsStr}}" placeholder="sso.yourdomain.com">
+                                        <p class="help-text">Must be DNS domain names (not raw IP addresses).</p>
                                     </div>
-                                    <div class="grid-2">
-                                        <div class="form-group" style="margin-bottom: 0;">
-                                            <label for="auto_tls_cache_dir">Certificate Cache Directory</label>
-                                            <input type="text" id="auto_tls_cache_dir" name="auto_tls_cache_dir" value="{{.Settings.AutoTLSCacheDir}}" placeholder="certs/autocert">
-                                        </div>
-                                        <div class="form-group" style="margin-bottom: 0;">
-                                            <label for="auto_tls_http_challenge_addr">HTTP-01 Challenge Listen Address</label>
-                                            <input type="text" id="auto_tls_http_challenge_addr" name="auto_tls_http_challenge_addr" value="{{.Settings.AutoTLSHTTPChallengeAddr}}" placeholder=":80">
-                                        </div>
+                                    <div class="form-group">
+                                        <label for="auto_tls_email">Let's Encrypt Notification Email</label>
+                                        <input type="email" id="auto_tls_email" name="auto_tls_email" value="{{.Settings.AutoTLSEmail}}" placeholder="admin@yourdomain.com">
+                                    </div>
+                                </div>
+                                <div class="grid-2">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="auto_tls_cache_dir">Certificate Cache Directory</label>
+                                        <input type="text" id="auto_tls_cache_dir" name="auto_tls_cache_dir" value="{{.Settings.AutoTLSCacheDir}}" placeholder="certs/autocert">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label for="auto_tls_http_challenge_addr">HTTP-01 Challenge Listen Address</label>
+                                        <input type="text" id="auto_tls_http_challenge_addr" name="auto_tls_http_challenge_addr" value="{{.Settings.AutoTLSHTTPChallengeAddr}}" placeholder=":80">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Custom Theme & Branding Profiles Card -->
-                    <div class="card" style="margin-top: 1.5rem;" id="brandingProfilesCard">
-                        <input type="hidden" id="branding_active_profile" name="branding_active_profile" value="{{.BrandingActiveProfile}}">
-                        <input type="hidden" id="branding_profiles_json" name="branding_profiles_json" value="">
-
-                        <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
-                            <div>
-                                <h2>🎨 Custom Theme &amp; Branding Profiles</h2>
-                                <p class="help-text" style="margin-top: 0.2rem;">Customize app names, icons, logos, accent colors, and backgrounds per SAML application integration. Saved images persist in the gateway database.</p>
+                    <!-- Category C: Metadata XML Downloads -->
+                    <div id="sys-cat-metadata" class="category-pane">
+                        <div class="accordion-section" id="sec-sys-metadata-xml">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sys-metadata-xml')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">📄 SAML 2.0 Metadata XML Downloads</h3>
+                                        <p class="accordion-desc">Download EntityDescriptor XML definitions for SP and IdP federation</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="createBrandingProfile(false)">+ New Profile</button>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="createBrandingProfile(true)">✨ Generic App Template</button>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="duplicateBrandingProfile()">⧉ Duplicate</button>
-                                <button type="button" class="btn btn-sm btn-secondary" id="btnResetBrandingProfile" onclick="resetActiveBrandingProfile()">↺ Reset Profile</button>
-                                <button type="button" class="btn btn-sm btn-danger" id="btnDeleteBrandingProfile" onclick="deleteActiveBrandingProfile()" style="display: none;">🗑 Delete</button>
-                            </div>
-                        </div>
+                            <div class="accordion-body">
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <div class="guide-item" style="padding: 0.85rem;">
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);">SP Metadata XML (Gateway as SP)</div>
+                                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">Upload to Upstream Identity Provider (Microsoft Entra ID, Keycloak, Okta)</div>
+                                        </div>
+                                        <a href="/saml/metadata/sp" download="samlguard-sp-metadata.xml" class="btn btn-sm btn-secondary">⬇️ Download XML</a>
+                                    </div>
 
-                        <div class="idp-selector-grid" id="brandingProfileGrid"></div>
-
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="theme_profile_name">Profile Display Name</label>
-                                <input type="text" id="theme_profile_name" placeholder="e.g. Acme Portal Theme">
-                                <div class="help-text">Friendly label shown in the theme selector above (<code id="theme_profile_key_badge">default</code>).</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="theme_app_name">Portal / App Name</label>
-                                <input type="text" id="theme_app_name" placeholder="SAMLGuard">
-                                <div class="help-text">Displayed in browser titles, login cards, admin sidebar, and footer.</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="theme_target_app_name">Target SAML Application Name</label>
-                                <input type="text" id="theme_target_app_name" placeholder="Schneider Electric IT Advisor">
-                                <div class="help-text">Shown in login prompts (e.g. "Secure access to &lt;Target App&gt;").</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="theme_subtitle">Header Subtitle</label>
-                                <input type="text" id="theme_subtitle" placeholder="IT Advisor">
-                                <div class="help-text">Small label next to the top-left header logo (leave blank when using a custom logo unless needed).</div>
-                            </div>
-
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="theme_footer_text">Footer Text</label>
-                                <input type="text" id="theme_footer_text" placeholder="© 2026 SAMLGuard. All rights reserved.">
-                                <div class="help-text">Displayed on the right side of the page footer across all login, MFA, error, guide, and admin pages (enter <code>none</code> to hide).</div>
+                                    <div class="guide-item" style="padding: 0.85rem;">
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);">IdP Metadata XML (Gateway as IdP)</div>
+                                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">Upload to Downstream Service Provider (Schneider Electric EcoStruxure IT Advisor)</div>
+                                        </div>
+                                        <a href="/saml/metadata/idp" download="samlguard-idp-metadata.xml" class="btn btn-sm btn-secondary">⬇️ Download XML</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="form-group" style="max-width: 420px;">
-                            <label for="theme_accent_color_text">Primary Accent Color (Hex)</label>
-                            <div style="display: flex; align-items: center; gap: 0.6rem;">
-                                <input type="color" id="theme_accent_color_picker" value="#00B050" style="width: 44px; height: 38px; padding: 2px; border-radius: 8px; cursor: pointer;">
-                                <input type="text" id="theme_accent_color_text" value="#00B050" placeholder="#00B050" style="font-family: ui-monospace, SFMono-Regular, monospace;">
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="setAccentColor('#00B050')">Reset</button>
+                    <!-- Category D: Providers Overview -->
+                    <div id="sys-cat-overview" class="category-pane">
+                        <div class="accordion-section" id="sec-sys-providers-summary">
+                            <div class="accordion-header" onclick="toggleAccordion('sec-sys-providers-summary')">
+                                <div class="accordion-title-group">
+                                    <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div class="accordion-title-text">
+                                        <h3 class="accordion-title">🪪 Active Identity &amp; OTP Providers Summary</h3>
+                                        <p class="accordion-desc">Consolidated telemetry of currently active upstream and second-factor authentication</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="help-text">Controls primary buttons, focus rings, sidebar highlights, and shield glow.</div>
+                            <div class="accordion-body">
+                                <p class="help-text" style="margin-bottom: 1rem;">
+                                    Upstream SAML Identity Providers and multi-factor OTP verification methods (Authenticator App, Email OTP, and SMS OTP) are configured in their respective sections.
+                                </p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem;">
+                                    <span class="badge badge-info">Upstream IdP: <strong style="text-transform: uppercase;">{{.ActiveIdP}}</strong></span>
+                                    {{if .TotpEnabled}}<span class="badge badge-success">📱 Authenticator App (TOTP): Active</span>{{end}}
+                                    {{if .EmailEnabled}}<span class="badge badge-success">📧 Email OTP: Active</span>{{end}}
+                                    {{if .SMSEnabled}}<span class="badge badge-success">💬 SMS OTP: Active ({{.SMSProvider}})</span>{{end}}
+                                    <span class="badge badge-info">Default OTP: <strong style="text-transform: uppercase;">{{.Settings.MFADefaultProvider}}</strong></span>
+                                </div>
+                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="switchNavTab(document.getElementById('nav-tab-upstream'), 'tab-upstream', 'Identity Providers', 'Configure upstream SAML 2.0 Identity Providers, SSO endpoints, and federation certificates.');">
+                                        🪪 Manage Identity Providers →
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="switchNavTab(document.querySelector('[onclick*=\'tab-downstream\']'), 'tab-downstream', 'Service Providers', 'Configure downstream Service Providers, network endpoints, and OTP/MFA verification methods.'); switchSubnavTab('tab-downstream', 'sp-cat-mfa');">
+                                        🔐 Manage OTP &amp; MFA Providers →
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="branding-toggle-row">
-                            <label class="branding-toggle-item">
-                                <input type="checkbox" id="theme_show_app_icon" checked>
-                                <span>Show App Card Icon</span>
-                            </label>
-                            <label class="branding-toggle-item">
-                                <input type="checkbox" id="theme_show_header_logo" checked>
-                                <span>Show Header Left Logo</span>
-                            </label>
-                            <label class="branding-toggle-item">
-                                <input type="checkbox" id="theme_show_subtitle" checked>
-                                <span>Show Header Subtitle</span>
-                            </label>
-                            <label class="branding-toggle-item">
-                                <input type="checkbox" id="theme_show_org_logo" checked>
-                                <span>Show Organization / Right Logo</span>
-                            </label>
-                        </div>
-
-                        <div class="branding-asset-grid" id="brandingAssetGrid"></div>
                     </div>
                 </div>
 
@@ -2771,6 +3431,101 @@
 </div>
 
 <script>
+    // Category Navigation (Level 2)
+    function switchCategoryTab(catBtn, paneId, parentTabId) {
+        const container = document.getElementById(parentTabId);
+        if (!container) return;
+        container.querySelectorAll('.category-nav-btn').forEach(b => b.classList.remove('active'));
+        catBtn.classList.add('active');
+        container.querySelectorAll('.category-pane').forEach(p => p.classList.remove('active'));
+        const pane = document.getElementById(paneId);
+        if (pane) pane.classList.add('active');
+        try {
+            sessionStorage.setItem('sg_active_cat_' + parentTabId, paneId);
+        } catch(e) {}
+    }
+
+    function switchSubnavTab(parentTabId, paneId) {
+        const btn = document.querySelector(`#${parentTabId} [data-cat-target="${paneId}"]`);
+        if (btn) btn.click();
+    }
+
+    // Accordion Sections (Collapsible)
+    function toggleAccordion(secId) {
+        const sec = document.getElementById(secId);
+        if (!sec) return;
+        const isCollapsed = sec.classList.toggle('collapsed');
+        try {
+            sessionStorage.setItem('sg_accordion_' + secId, isCollapsed ? '0' : '1');
+        } catch(e) {}
+    }
+
+    function initAccordions() {
+        document.querySelectorAll('.accordion-section').forEach(sec => {
+            const secId = sec.id;
+            if (!secId) return;
+            try {
+                const saved = sessionStorage.getItem('sg_accordion_' + secId);
+                if (saved === '1') {
+                    sec.classList.remove('collapsed');
+                } else if (saved === '0') {
+                    sec.classList.add('collapsed');
+                }
+            } catch(e) {}
+        });
+    }
+
+    function initCategoryNavs() {
+        ['tab-upstream', 'tab-downstream', 'tab-system-settings'].forEach(tabId => {
+            try {
+                const savedPaneId = sessionStorage.getItem('sg_active_cat_' + tabId);
+                if (savedPaneId) {
+                    const btn = document.querySelector(`#${tabId} [data-cat-target="${savedPaneId}"]`);
+                    if (btn) btn.click();
+                }
+            } catch(e) {}
+        });
+    }
+
+    // Toast Notifications (Top-Right Floating)
+    function dismissToast(el) {
+        if (!el) return;
+        el.classList.add('fade-out');
+        setTimeout(() => { el.remove(); }, 300);
+    }
+
+    function initToasts() {
+        document.querySelectorAll('.toast-alert').forEach(toast => {
+            setTimeout(() => { dismissToast(toast); }, 4000);
+        });
+    }
+
+    function showToast(message, type = 'success', duration = 4000) {
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            container.setAttribute('aria-live', 'polite');
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast-alert toast-${type}`;
+        toast.setAttribute('role', 'alert');
+        const icon = type === 'success' ? '✅' : '⚠️';
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <span style="font-size: 1.15rem; line-height: 1;">${icon}</span>
+                <span style="color: #f1f5f9; font-weight: 500;">${message}</span>
+            </div>
+            <button type="button" class="toast-close-btn" onclick="dismissToast(this.parentElement)" aria-label="Close notification">✕</button>
+        `;
+        container.appendChild(toast);
+        if (duration > 0) {
+            setTimeout(() => { dismissToast(toast); }, duration);
+        }
+    }
+
     // Tab switching with dynamic hero updates
     function switchNavTab(btn, tabId, title, desc) {
         // Update nav items
@@ -3008,6 +3763,8 @@
 
         closeCustomerTenantModal();
         renderCustomerTenants();
+        initAccordions();
+        initCategoryNavs();
         markCustomerTenantsDirty();
     }
 
@@ -3468,6 +4225,7 @@
         syncOTPProviderState();
         initBrandingProfilesUI();
         renderCustomerTenants();
+        initToasts();
         // Dynamic network status is server-rendered on page load; refreshed on-demand via the Refresh button
 
         ['idp_entity_id', 'idp_sso_url', 'idp_metadata_url', 'idp_cert_file'].forEach(id => {
@@ -3555,21 +4313,35 @@
             const data = await res.json();
 
             // Rebuild select options
-            if (select && data.available_interfaces) {
-                select.innerHTML = '';
-                data.available_interfaces.forEach(iface => {
-                    const optVal = iface.name + '|' + (iface.primary_ip || '');
-                    const opt = document.createElement('option');
-                    opt.value = optVal;
-                    opt.textContent = `${iface.display_name} – ${iface.primary_ip || 'no IPv4'} ${iface.is_virtual ? '[virtual]' : ''}`;
-                    if (data.selected_interface === iface.name && data.selected_ip === iface.primary_ip) {
-                        opt.selected = true;
-                    }
-                    select.appendChild(opt);
-                });
-                if (!select.value && select.options.length > 0) {
-                    select.selectedIndex = 0;
+            if (select) {
+                let ifaces = Array.isArray(data.available_interfaces) ? data.available_interfaces : [];
+                if (!includeVirtual) {
+                    ifaces = ifaces.filter(i => !i.is_virtual);
                 }
+                select.innerHTML = '';
+                if (ifaces.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = '-- No physical interfaces detected --';
+                    opt.disabled = true;
+                    opt.selected = true;
+                    select.appendChild(opt);
+                } else {
+                    ifaces.forEach(iface => {
+                        const optVal = iface.name + '|' + (iface.primary_ip || '');
+                        const opt = document.createElement('option');
+                        opt.value = optVal;
+                        opt.textContent = `${iface.display_name} – ${iface.primary_ip || 'no IPv4'} ${iface.is_virtual ? '[virtual]' : ''}`;
+                        if (data.selected_interface === iface.name && data.selected_ip === iface.primary_ip) {
+                            opt.selected = true;
+                        }
+                        select.appendChild(opt);
+                    });
+                    if (!select.value && select.options.length > 0) {
+                        select.selectedIndex = 0;
+                    }
+                }
+                onNetworkInterfaceSelectChange();
             }
 
             updateNetworkUI(data);

@@ -47,7 +47,7 @@ import (
 )
 
 // Version string populated at build time
-var Version = "v1.2.0"
+var Version = "v1.2.1"
 
 // SetupAppWithCleanup constructs and wires all runtime dependencies into the Gin engine
 // and returns a resource cleanup function to be invoked on server shutdown.
